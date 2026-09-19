@@ -425,25 +425,18 @@ const targetUI = document.getElementById("target");
    START GAME
 ========================================================= */
 
-startButton.addEventListener("click", function(){
+startButton.onclick = function () {
 
-    if(gameStarted) return;
+    console.log("START BUTTON CLICKED");
 
     gameStarted = true;
 
-    startButton.disabled = true;
-    startButton.textContent = "LOADING...";
+    startScreen.style.display = "none";
+    hud.style.display = "block";
 
-    setTimeout(() => {
+    initGame();
 
-        startScreen.style.display = "none";
-        hud.style.display = "block";
-
-        initGame();
-
-    },100);
-
-});
+};
 
 /* =========================================================
    INIT
