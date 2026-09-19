@@ -20,8 +20,6 @@ body {
     color: white;
 }
 
-/* HEADER */
-
 header {
     background: #151820;
     border-bottom: 1px solid #292e38;
@@ -51,8 +49,6 @@ nav a {
 nav a:hover {
     color: #00eaff;
 }
-
-/* HERO */
 
 .hero {
     padding: 70px 5%;
@@ -85,8 +81,6 @@ nav a:hover {
     box-shadow: 0 0 25px #00eaff;
 }
 
-/* SEARCH */
-
 .search-area {
     padding: 30px 5%;
     text-align: center;
@@ -107,8 +101,6 @@ nav a:hover {
     box-shadow: 0 0 15px #00eaff;
 }
 
-/* SECTIONS */
-
 section {
     padding: 45px 5%;
 }
@@ -118,8 +110,6 @@ section {
     margin-bottom: 25px;
     color: #00eaff;
 }
-
-/* GAMES */
 
 .games {
     display: grid;
@@ -149,6 +139,14 @@ section {
     font-size: 65px;
     background:
         linear-gradient(135deg, #14213d, #081018);
+    overflow: hidden;
+}
+
+.thumbnail img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
 }
 
 .game-info {
@@ -181,8 +179,6 @@ section {
     background: white;
 }
 
-/* CATEGORIES */
-
 .categories {
     display: flex;
     gap: 12px;
@@ -202,8 +198,6 @@ section {
     color: #00eaff;
 }
 
-/* ABOUT */
-
 .about {
     background: #10131a;
     text-align: center;
@@ -216,16 +210,12 @@ section {
     line-height: 1.7;
 }
 
-/* FOOTER */
-
 footer {
     text-align: center;
     padding: 30px;
     background: #080a0e;
     color: #777;
 }
-
-/* MOBILE */
 
 @media (max-width: 600px) {
 
@@ -248,8 +238,6 @@ footer {
 
 <body>
 
-<!-- HEADER -->
-
 <header>
 
     <div class="logo">
@@ -263,9 +251,6 @@ footer {
     </nav>
 
 </header>
-
-
-<!-- HERO -->
 
 <div class="hero">
 
@@ -281,9 +266,6 @@ footer {
 
 </div>
 
-
-<!-- SEARCH -->
-
 <div class="search-area">
 
     <input
@@ -296,9 +278,6 @@ footer {
 
 </div>
 
-
-<!-- FEATURED -->
-
 <section>
 
     <h2 class="section-title">
@@ -307,13 +286,15 @@ footer {
 
     <div class="games" id="games">
 
-
         <!-- EMOTION POWERS -->
 
         <div class="game-card">
 
             <div class="thumbnail">
-                ⚡
+                <img
+                    src="emotion-powers.jpeg"
+                    alt="Emotion Powers game"
+                >
             </div>
 
             <div class="game-info">
@@ -334,7 +315,6 @@ footer {
             </div>
 
         </div>
-
 
         <!-- FUTURE GAME -->
 
@@ -360,7 +340,6 @@ footer {
 
         </div>
 
-
         <!-- FUTURE GAME -->
 
         <div class="game-card">
@@ -384,7 +363,6 @@ footer {
             </div>
 
         </div>
-
 
         <!-- FUTURE GAME -->
 
@@ -414,9 +392,6 @@ footer {
 
 </section>
 
-
-<!-- CATEGORIES -->
-
 <section id="categories">
 
     <h2 class="section-title">
@@ -426,23 +401,15 @@ footer {
     <div class="categories">
 
         <div class="category">⚡ Action</div>
-
         <div class="category">🗺️ Adventure</div>
-
         <div class="category">🏎️ Racing</div>
-
         <div class="category">⚔️ Battle</div>
-
         <div class="category">🧩 Puzzle</div>
-
         <div class="category">👾 Arcade</div>
 
     </div>
 
 </section>
-
-
-<!-- ABOUT -->
 
 <section class="about" id="about">
 
@@ -467,15 +434,11 @@ footer {
 
 </section>
 
-
-<!-- FOOTER -->
-
 <footer>
 
     © 2026 HASHI GAME ZONES 🎮
 
 </footer>
-
 
 <script>
 
