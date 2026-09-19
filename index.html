@@ -2,243 +2,6535 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>HASHI GAME ZONES</title>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <title>V27 • Emotion Powers — Large Open World</title>
 
 <style>
-* {
-    box-sizing: border-box;
-    margin: 0;
-    padding: 0;
+*{
+    box-sizing:border-box;
 }
 
-body {
-    font-family: Arial, sans-serif;
-    background: #050816;
-    color: white;
-    min-height: 100vh;
+html,body{
+    margin:0;
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#07111b;
+    color:white;
+    font-family:Arial,sans-serif;
 }
 
-nav {
-    padding: 20px 8%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: rgba(0,0,0,0.6);
-    position: sticky;
-    top: 0;
-    z-index: 10;
+canvas{
+    display:block;
+    width:100vw;
+    height:100vh;
+    touch-action:none;
+    contain:strict;
 }
 
-.logo {
-    font-size: 25px;
-    font-weight: bold;
-    color: #00ffff;
+@media (max-width:900px){
+    html,body{ width:100vw; height:100dvh; min-height:100dvh; }
+    canvas{ width:100vw !important; height:100dvh !important; }
+}
+@media (max-width:900px) and (orientation:portrait){
+    body::before{content:"Rotate your phone to landscape";position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;background:#07111b;color:white;font:700 20px Arial;text-align:center;padding:30px;}
 }
 
-nav a {
-    color: white;
-    text-decoration: none;
-    margin-left: 25px;
+#loadingScreen{
+    position:fixed;
+    inset:0;
+    z-index:1000;
+    display:none;
+    align-items:center;
+    justify-content:center;
+    flex-direction:column;
+    background:radial-gradient(circle,#193b5e,#05080d 72%);
+    text-align:center;
 }
 
-nav a:hover {
-    color: #00ffff;
+#loadingScreen h1{
+    margin:0 0 12px;
+    font-size:clamp(30px,6vw,52px);
+    letter-spacing:4px;
 }
 
-.hero {
-    min-height: 75vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    padding: 40px 20px;
-    background: radial-gradient(circle at center, #172554, #050816 65%);
+#loadingText{
+    opacity:.85;
+    margin-bottom:16px;
 }
 
-.hero h1 {
-    font-size: clamp(45px, 8vw, 90px);
-    color: #00ffff;
-    text-shadow: 0 0 15px #00ffff;
-    animation: glow 2s infinite alternate;
+#loadingBar{
+    width:min(460px,78vw);
+    height:14px;
+    background:#1d2a38;
+    border-radius:20px;
+    overflow:hidden;
+    box-shadow:0 0 25px #0008;
 }
 
-.hero p {
-    font-size: 22px;
-    margin-top: 15px;
-    color: #d1d5db;
+#loadingFill{
+    width:0%;
+    height:100%;
+    background:linear-gradient(90deg,#28b9ff,#8b5cf6);
+    border-radius:20px;
+    transition:width .18s ease;
 }
 
-.play {
-    display: inline-block;
-    margin-top: 35px;
-    padding: 18px 45px;
-    background: #00ffff;
-    color: #050816;
-    text-decoration: none;
-    border-radius: 12px;
-    font-size: 22px;
-    font-weight: bold;
-    box-shadow: 0 0 25px #00ffff;
-    transition: 0.3s;
+#loadingPercent{
+    margin-top:10px;
+    font-weight:bold;
 }
 
-.play:hover {
-    transform: scale(1.08);
-    box-shadow: 0 0 45px #00ffff;
+#start{
+    position:fixed;
+    inset:0;
+    z-index:50;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:radial-gradient(circle,#244d78,#07101b 72%);
 }
 
-section {
-    padding: 70px 8%;
-    text-align: center;
+.card{
+    width:min(700px,92vw);
+    padding:32px;
+    border:1px solid #6ea5df;
+    border-radius:24px;
+    background:rgba(4,12,23,.92);
+    box-shadow:0 25px 80px #000;
+    text-align:center;
 }
 
-section h2 {
-    font-size: 38px;
-    margin-bottom: 35px;
-    color: #00ffff;
+h1{
+    font-size:48px;
+    margin:0 0 8px;
+    letter-spacing:3px;
 }
 
-.games {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-    gap: 25px;
+button{
+    border:0;
+    border-radius:12px;
+    padding:11px 16px;
+    margin:5px;
+    background:#2569aa;
+    color:white;
+    font-weight:bold;
+    cursor:pointer;
 }
 
-.card {
-    padding: 35px 20px;
-    background: #111827;
-    border: 1px solid #1f3b4d;
-    border-radius: 18px;
-    transition: 0.3s;
+button:hover{
+    filter:brightness(1.18);
 }
 
-.card:hover {
-    transform: translateY(-8px);
-    box-shadow: 0 0 25px #00ffff;
+.small{
+    opacity:.8;
+    font-size:13px;
+    line-height:1.5;
 }
 
-.card .icon {
-    font-size: 55px;
-    margin-bottom: 15px;
+#hud{
+    display:none;
+    position:fixed;
+    z-index:10;
+    left:14px;
+    top:14px;
+    width:270px;
+    padding:13px;
+    border-radius:16px;
+    background:rgba(3,10,19,.82);
+    backdrop-filter:blur(8px);
+    box-shadow:0 8px 25px #0005;
 }
 
-.card h3 {
-    font-size: 24px;
-    margin-bottom: 10px;
+.bar{
+    height:10px;
+    background:#283444;
+    border-radius:8px;
+    overflow:hidden;
+    margin:5px 0 8px;
 }
 
-.card p {
-    color: #9ca3af;
+.bar i{
+    display:block;
+    height:100%;
+    width:100%;
+    background:#38d278;
 }
 
-.card a {
-    display: inline-block;
-    margin-top: 10px;
-    padding: 10px 18px;
-    background: #00ffff;
-    color: #050816;
-    text-decoration: none;
-    border-radius: 8px;
-    font-weight: bold;
+#quest{
+    display:none;
+    position:fixed;
+    z-index:10;
+    right:14px;
+    top:14px;
+    width:350px;
+    padding:14px;
+    border-radius:16px;
+    background:rgba(3,10,19,.82);
+    backdrop-filter:blur(8px);
 }
 
-.card a:hover {
-    box-shadow: 0 0 20px #00ffff;
+#prompt{
+    display:none;
+    position:fixed;
+    z-index:12;
+    left:50%;
+    bottom:118px;
+    transform:translateX(-50%);
+    padding:10px 18px;
+    border-radius:20px;
+    background:rgba(0,0,0,.8);
+    font-weight:bold;
 }
 
-.about {
-    background: #080d1c;
+#msg{
+    display:none;
+    position:fixed;
+    z-index:20;
+    left:50%;
+    bottom:55px;
+    transform:translateX(-50%);
+    padding:11px 20px;
+    border-radius:20px;
+    background:rgba(0,0,0,.85);
 }
 
-footer {
-    padding: 25px;
-    text-align: center;
-    background: #02040a;
-    color: #9ca3af;
+#dialog,
+#shop,
+#pause{
+    display:none;
+    position:fixed;
+    inset:0;
+    z-index:40;
+    align-items:center;
+    justify-content:center;
+    background:rgba(0,0,0,.58);
 }
 
-@keyframes glow {
-    from {
-        text-shadow: 0 0 10px #00ffff;
+.box{
+    width:min(560px,92vw);
+    padding:24px;
+    border-radius:20px;
+    background:#081629;
+    border:1px solid #4e83bd;
+    box-shadow:0 25px 70px #000;
+}
+
+#powers{
+    display:none;
+    position:fixed;
+    z-index:11;
+    left:50%;
+    bottom:14px;
+    transform:translateX(-50%);
+    width:min(760px,96vw);
+    text-align:center;
+}
+
+.power{
+    font-size:14px;
+    min-width:88px;
+}
+
+.locked{
+    opacity:.4;
+}
+
+#map{
+    position:fixed;
+    z-index:11;
+    right:18px;
+    bottom:18px;
+    width:145px;
+    height:145px;
+    border:2px solid #b9d7f5;
+    border-radius:12px;
+    background:rgba(8,20,30,.78);
+}
+
+#taskArrow{position:fixed;z-index:23;left:50%;top:142px;transform:translateX(-50%);min-width:190px;padding:9px 14px;border-radius:18px;background:rgba(3,10,19,.88);border:1px solid #58b9ff;box-shadow:0 0 22px #168cff44;text-align:center;pointer-events:none;backdrop-filter:blur(7px);transition:opacity .15s,transform .15s} #taskArrow.near{border-color:#72ffb2;box-shadow:0 0 26px #35ff9a55} #taskArrow.boss{border-color:#ff5d75;box-shadow:0 0 28px #ff244455} #taskArrowIcon{filter:drop-shadow(0 0 7px #8ed7ff)}
+#taskArrow b{display:block;font-size:13px;letter-spacing:.8px;color:#8ed7ff}
+#taskArrowIcon{display:inline-block;font-size:32px;line-height:32px;margin:1px 0;transform-origin:50% 50%}
+#taskArrowInfo{display:block;font-size:12px;opacity:.9}
+
+#compass{
+    position:fixed;
+    z-index:11;
+    top:105px;
+    left:50%;
+    transform:translateX(-50%);
+    padding:5px 12px;
+    border-radius:12px;
+    background:#0008;
+    font-weight:bold;
+}
+
+#mobile{
+    display:none;
+    position:fixed;
+    z-index:30;
+    left:12px;
+    right:12px;
+    bottom:12px;
+    justify-content:space-between;
+    pointer-events:none;
+}
+
+#mobile button{
+    pointer-events:auto;
+    width:54px;
+    height:54px;
+    border-radius:50%;
+    padding:0;
+    font-size:18px;
+    background:#163b60dd;
+}
+
+
+#bossIndicator{position:fixed;z-index:25;top:14px;left:50%;transform:translateX(-50%);padding:8px 16px;border-radius:14px;background:rgba(30,5,5,.82);border:1px solid #ff5b5b;box-shadow:0 0 20px #ff000055;text-align:center}#bossIndicator b{display:block;color:#ff7272;font-size:15px}#bossDistance{font-size:12px;opacity:.9}
+#mutatePanel{position:fixed;z-index:24;right:18px;top:170px;text-align:center}#mutateBtn{min-width:150px;font-size:15px;border:1px solid #ff4b4b;background:linear-gradient(#7d1717,#3b0808);box-shadow:0 0 18px #ff000044}#mutateBtn:not(:disabled){animation:mutatePulse 1.3s infinite}#mutateBtn:disabled{opacity:.45;animation:none}#mutatePower{font-size:11px;margin-top:4px;opacity:.85}
+#cinematicOverlay{position:fixed;inset:0;z-index:2000;display:flex;align-items:center;justify-content:center;flex-direction:column;text-align:center;background:radial-gradient(circle,rgba(255,20,20,.28),rgba(0,0,0,.92) 68%);pointer-events:none}#cinematicTitle{font-size:clamp(30px,7vw,72px);font-weight:900;letter-spacing:7px;text-shadow:0 0 30px #ff3333}#cinematicText{margin-top:14px;font-size:clamp(15px,3vw,26px);opacity:.9}@keyframes mutatePulse{0%,100%{box-shadow:0 0 12px #ff303055}50%{box-shadow:0 0 30px #ff3030aa}}
+
+
+/* V13.1 Ultimate Transformation FX */
+#transformFlash{position:fixed;inset:0;z-index:1999;display:none;pointer-events:none;background:radial-gradient(circle,rgba(255,255,255,.9),rgba(150,40,255,.22) 28%,rgba(0,0,0,0) 70%);animation:transformFlash .9s ease-out forwards}
+@keyframes transformFlash{0%{opacity:0}18%{opacity:1}100%{opacity:0}}
+#transformLabel{position:fixed;left:50%;top:67%;transform:translate(-50%,-50%);z-index:2001;display:none;pointer-events:none;text-align:center;font-weight:900;letter-spacing:5px;font-size:clamp(22px,5vw,54px);text-shadow:0 0 25px currentColor,0 0 55px currentColor}
+
+@media(max-width:800px){
+
+    #quest{
+        width:260px;
+        font-size:13px;
     }
-    to {
-        text-shadow: 0 0 35px #00ffff;
+
+    #powers{
+        bottom:72px;
+    }
+
+    .power{
+        min-width:70px;
+        padding:9px 7px;
+    }
+
+    .card h1{
+        font-size:34px;
     }
 }
 
-@media (max-width: 600px) {
-    nav {
-        flex-direction: column;
-        gap: 15px;
-    }
+<style>
+#performanceBadge{position:fixed;left:14px;bottom:14px;z-index:79;padding:7px 10px;border-radius:10px;background:rgba(3,10,19,.72);border:1px solid #36516d;color:#cfe8ff;font-size:11px;pointer-events:none;backdrop-filter:blur(6px)}
 
-    nav a {
-        margin: 0 8px;
-    }
+/* ================= V13 BENCH / INTERACTION UI ================= */
+#benchPrompt{position:fixed;left:50%;bottom:118px;transform:translateX(-50%);z-index:60;display:none;padding:10px 16px;border-radius:14px;background:rgba(8,12,20,.9);border:1px solid #ffd36a;color:#fff;font-weight:700;box-shadow:0 8px 30px rgba(0,0,0,.35);pointer-events:none;text-align:center}
+#benchPrompt span{color:#ffd36a}
+#sitBtn{position:fixed;right:22px;bottom:132px;z-index:61;display:none;width:64px;height:64px;border-radius:50%;border:1px solid #ffd36a;background:rgba(20,16,8,.86);color:#fff;font-weight:800;box-shadow:0 8px 24px rgba(0,0,0,.35)}
+@media (max-width:700px){#benchPrompt{bottom:155px;font-size:13px}#sitBtn{right:18px;bottom:160px;width:58px;height:58px}}
 
-    .hero p {
-        font-size: 18px;
-    }
-}
+/* V25 UI */
+#mapPanel{position:fixed;z-index:81;left:14px;top:14px;display:flex;flex-direction:column;gap:5px;align-items:flex-start}
+#mapPanel #map{position:relative;left:auto;right:auto;bottom:auto;top:auto}
+#mapToggleBtn{width:38px;height:30px;padding:0;border-radius:9px;background:rgba(8,20,30,.92);color:#fff;border:1px solid #8ed7ff;cursor:pointer;font-size:16px}
+#recordBtn{padding:9px 12px;border-radius:12px;background:#172b45;color:#fff;border:1px solid #ff6b6b;cursor:pointer}
+body.recordingMode #hud,body.recordingMode #quest,body.recordingMode #mapPanel,body.recordingMode #audioControls,body.recordingMode #performanceBadge,body.recordingMode #taskArrow,body.recordingMode #benchPrompt,body.recordingMode #sitBtn{display:none !important}
+#recordStatus{position:fixed;right:14px;top:14px;z-index:90;padding:7px 10px;border-radius:10px;background:rgba(120,0,0,.82);color:#fff;font-weight:700;font-size:11px;display:none;pointer-events:none}
+body.recordingMode #recordStatus{display:block}
+#mapPanel.hidden #map{display:none}
+@media(max-width:700px){#mapPanel{left:8px;top:8px}#mapPanel #map{width:112px;height:112px}}
 </style>
 </head>
 
 <body>
 
-<nav>
-    <div class="logo">🎮 HASHI GAME ZONES</div>
+<div id="loadingScreen" aria-live="polite">
+    <h1>EMOTION POWERS</h1>
+    <div id="loadingText">Preparing world...</div>
+    <div id="loadingBar"><div id="loadingFill"></div></div>
+    <div id="loadingPercent">0%</div>
+</div>
+
+
+
+<div id="start">
+
+    <div class="card">
+
+        <h1>EMOTION POWERS</h1>
+
+        <p>OPEN WORLD — V28 • YOUTUBE PLAYABLES</p>
+
+        <p>
+            You begin with <b>NO POWERS</b>.
+            Explore, complete tasks, earn emotions,
+            drive vehicles and unlock flight.
+        </p>
+
+        <button onclick="startNew()">
+            NEW GAME
+        </button>
+
+        <button onclick="loadExisting()">
+            LOAD GAME
+        </button>
+
+        <p class="small">
+            <b>WASD</b> = movement •
+            <b>Mouse drag</b> = camera •
+            <b>Shift</b> = sprint
+            <br>
+
+            <b>E</b> = interact / vehicle •
+            <b>Space</b> = attack •
+            <b>1–9</b> = powers •
+            <b>F</b> = flight
+        </p>
+
+    </div>
+
+</div>
+
+
+<div id="performanceBadge">▶️ V28 • YOUTUBE PLAYABLES</div>⚡ V28 • YOUTUBE PLAYABLES</div>
+
+<div id="audioControls" style="position:fixed;z-index:80;left:14px;bottom:14px;display:flex;gap:6px;flex-wrap:wrap">
+<button id="musicBtn" type="button" style="margin:0;padding:9px 12px;border-radius:12px;background:#172b45;color:white;border:1px solid #5c87b5">🎵 Music ON</button>
+<button id="sfxBtn" type="button" style="margin:0;padding:9px 12px;border-radius:12px;background:#172b45;color:white;border:1px solid #5c87b5">🔊 SFX ON</button>
+<button id="taskArrowBtn" type="button" style="margin:0;padding:9px 12px;border-radius:12px;background:#172b45;color:white;border:1px solid #58b9ff">🧭 Tasks ON</button>
+<button id="dayBtn" type="button" style="margin:0;padding:9px 12px;border-radius:12px;background:#172b45;color:white;border:1px solid #ffd36a">🌤️ Day/Night ON</button>
+<button id="recordBtn" type="button">🔴 YouTube Mode</button>
+</div>
+<div id="mapPanel"><button id="mapToggleBtn" type="button" aria-label="Hide map">🗺️</button>
+<canvas id="map" width="145" height="145"></canvas></div>
+
+<div id="hud">
+
+    <b>
+        Level
+        <span id="level">1</span>
+    </b>
+
+    • XP
+
+    <span id="xp">0</span>/
+
+    <span id="need">100</span>
+
+    <br>
+
+    HP
+
+    <span id="hp">100</span>/
+
+    <span id="maxhp">100</span>
+
+    <div class="bar">
+        <i id="hpbar"></i>
+    </div>
+
+    Coins:
+    <span id="coins">25</span>
+
+    •
+
+    Crystals:
+    <span id="crystals">0</span>
+
+    <br>
+
+    Power:
+    <span id="power">None</span>
+
+    <br>
+
+    Mode:
+    <span id="mode">Walking</span>
+
+</div>
+
+
+<div id="quest">
+
+    <b>QUEST</b>
+
+    <div id="questText"></div>
+
+</div>
+
+
+<div id="prompt"></div>
+
+<div id="msg"></div>
+
+<div id="compass">
+    N
+</div>
+
+<div id="taskArrow" style="display:none">
+    <b id="taskArrowTitle">TASK</b>
+    <span id="taskArrowIcon">⬆️</span>
+    <span id="taskArrowInfo">Follow the arrow</span>
+</div>
+
+
+
+<div id="bossIndicator" style="display:none"><b id="bossName">BOSS</b><span id="bossDistance"></span></div>
+<div id="mutatePanel" style="display:none"><button id="mutateBtn" onclick="mutate()">🔒 MUTATE</button><div id="mutatePower">Defeat a boss to unlock</div></div>
+<div id="cinematicOverlay" style="display:none"><div id="cinematicTitle">POWER AWAKENING</div><div id="cinematicText">Your emotions are changing...</div></div>
+<div id="transformFlash"></div><div id="transformLabel"></div>
+<div id="powers">
+
+    <button
+        class="power"
+        id="p1"
+        onclick="selectPower(0)">
+        🔒 Calm
+    </button>
+
+    <button
+        class="power"
+        id="p2"
+        onclick="selectPower(1)">
+        🔒 Anger
+    </button>
+
+    <button
+        class="power"
+        id="p3"
+        onclick="selectPower(2)">
+        🔒 Joy
+    </button>
+
+    <button
+        class="power"
+        id="p4"
+        onclick="selectPower(3)">
+        🔒 Sadness
+    </button>
+
+    <button
+        class="power"
+        id="p5"
+        onclick="selectPower(4)">
+        🔒 Fear
+    </button>
+
+    <button
+        class="power"
+        id="p6"
+        onclick="selectPower(5)">
+        🔒 Surprise
+    </button>
+
+    <button
+        class="power"
+        id="p7"
+        onclick="selectPower(6)">
+        🔒 Disgust
+    </button>
+
+    <button
+        class="power"
+        id="p8"
+        onclick="selectPower(7)">
+        🔒 Love
+    </button>
+
+    <button
+        class="power"
+        id="p9"
+        onclick="selectPower(8)">
+        🔒 Flight
+    </button>
+
+</div>
+
+
+<div id="dialog">
+
+    <div class="box">
+
+        <h2 id="dialogName"></h2>
+
+        <p id="dialogText"></p>
+
+        <button onclick="closeDialog()">
+            OK
+        </button>
+
+    </div>
+
+</div>
+
+
+<div id="shop">
+
+    <div class="box">
+
+        <h2>
+            🏪 Mira's Shop
+        </h2>
+
+        <button
+            id="healBtn"
+            onclick="buyHeal()">
+            Health Potion
+        </button>
+
+        <button
+            id="speedBtn"
+            onclick="buySpeed()">
+            Speed Upgrade
+        </button>
+
+        <button
+            id="powerBtn"
+            onclick="buyPowerUpgrade()">
+            Power Upgrade
+        </button>
+
+        <button onclick="closeShop()">
+            Close
+        </button>
+
+    </div>
+
+</div>
+
+
+<div id="pause">
+
+    <div class="box">
+
+        <h2>
+            Paused
+        </h2>
+
+        <button onclick="togglePause()">
+            Resume
+        </button>
+
+        <button onclick="saveGame();togglePause()">
+            Save & Resume
+        </button>
+
+        <button onclick="location.reload()">
+            Main Menu
+        </button>
+
+    </div>
+
+</div>
+
+
+<div id="mobile">
 
     <div>
-        <a href="#games">Games</a>
-        <a href="#about">About</a>
-    </div>
-</nav>
 
-<section class="hero">
-    <h1>HASHI GAME ZONES</h1>
-    <p>⚡ Enter the world of gaming ⚡</p>
-    <a class="play" href="#games">PLAY NOW 🎮</a>
-</section>
+        <button id="ml">
+            ◀
+        </button>
 
-<section id="games">
-    <h2>🔥 FEATURED GAMES</h2>
+        <button id="mf">
+            ▲
+        </button>
 
-    <div class="games">
+        <button id="mr">
+            ▶
+        </button>
 
-        <div class="card">
-            <div class="icon">⚡</div>
-            <h3>Emotion Powers</h3>
-            <p>Control your emotions and play!</p>
-
-            <a href="EMOTION%20POWERS/index.html">PLAY NOW 🎮</a>
-        </div>
-
-        <div class="card">
-            <div class="icon">🚀</div>
-            <h3>Future Game</h3>
-            <p>Coming soon...</p>
-        </div>
+        <button id="mb">
+            ▼
+        </button>
 
     </div>
-</section>
 
-<section class="about" id="about">
-    <h2>👑 ABOUT</h2>
+    <div>
 
-    <p>
-        Welcome to HASHI GAME ZONES!
-        <br><br>
-        This is my gaming zone where I create and share my games.
-        <br>
-        More adventures are coming soon!
-    </p>
-</section>
+        <button id="me">
+            E
+        </button>
 
-<footer>
-    © 2026 HASHI GAME ZONES — All Rights Reserved 🎮
-</footer>
+        <button id="ma">
+            ⚡
+        </button>
+
+        <button id="mf1">
+            ✈
+        </button>
+
+    </div>
+
+</div>
+
+
+<script src="https://www.youtube.com/game_api/v1"></script>
+
+<script type="module">
+
+/* =========================
+   BUILT-IN AUDIO SYSTEM
+   No external music files required.
+   Procedural music + sound effects work after the player presses NEW/LOAD GAME.
+========================= */
+let audioCtx=null;
+let masterGain=null;
+let musicGain=null;
+let sfxGain=null;
+let musicTimer=null;
+let musicStep=0;
+let musicOn=true;
+let sfxOn=true;
+let mapOn=true;
+let dayNightOn=true;
+const V25_SAVE_KEY="emotionPowersV28";
+const V25_SETTINGS_KEY="emotionPowersV28Settings";
+
+function ensureAudio(){
+    if(!audioCtx){
+        const AC=window.AudioContext||window.webkitAudioContext;
+        if(!AC)return false;
+        audioCtx=new AC();
+        masterGain=audioCtx.createGain();
+        musicGain=audioCtx.createGain();
+        sfxGain=audioCtx.createGain();
+        musicGain.gain.value=.16;
+        sfxGain.gain.value=.30;
+        masterGain.gain.value=playable.audioAllowed===false?0:.8;
+        musicGain.connect(masterGain);sfxGain.connect(masterGain);masterGain.connect(audioCtx.destination);
+    }
+    if(audioCtx.state==='suspended') audioCtx.resume();
+    playableApplyAudio();
+    return true;
+}
+function tone(freq,duration,type='sine',volume=.12,when=0,slide=0){
+    if(!sfxOn||!ensureAudio())return;
+    const t=audioCtx.currentTime+when;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.type=type;o.frequency.setValueAtTime(freq,t);
+    if(slide)o.frequency.exponentialRampToValueAtTime(Math.max(30,freq+slide),t+duration);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(volume,t+.012);g.gain.exponentialRampToValueAtTime(.0001,t+duration);
+    o.connect(g);g.connect(sfxGain);o.start(t);o.stop(t+duration+.03);
+}
+function noise(duration=.12,volume=.08){
+    if(!sfxOn||!ensureAudio())return;
+    const n=audioCtx.createBufferSource(),b=audioCtx.createBuffer(1,audioCtx.sampleRate*duration,audioCtx.sampleRate),d=b.getChannelData(0);
+    for(let i=0;i<d.length;i++)d[i]=(Math.random()*2-1)*(1-i/d.length);
+    n.buffer=b;const g=audioCtx.createGain();g.gain.value=volume;n.connect(g);g.connect(sfxGain);n.start();
+}
+function sfx(name){
+    if(name==='collect'){tone(660,.08,'sine',.11);tone(990,.13,'sine',.09,.07)}
+    else if(name==='hit'){tone(110,.09,'sawtooth',.10,0,-45);noise(.07,.05)}
+    else if(name==='power'){tone(330,.12,'triangle',.12);tone(494,.16,'triangle',.10,.10);tone(659,.25,'triangle',.08,.22)}
+    else if(name==='boss'){tone(90,.35,'sawtooth',.16);tone(55,.5,'sine',.13,.18)}
+    else if(name==='mutate'){tone(130,.18,'sawtooth',.13);tone(260,.24,'triangle',.12,.16);tone(520,.45,'sine',.10,.34)}
+    else if(name==='victory'){[523,659,784,1047].forEach((f,i)=>tone(f,.28,'triangle',.10,i*.12))}
+    else if(name==='menu'){tone(392,.12,'sine',.07);tone(523,.16,'sine',.06,.12)}
+}
+const musicNotes=[196,220,261.63,293.66,329.63,293.66,261.63,220,174.61,196,220,246.94,293.66,246.94,220,196];
+function musicTick(){
+    if(!musicOn||!ensureAudio())return;
+    const f=musicNotes[musicStep++%musicNotes.length],t=audioCtx.currentTime;
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.type='triangle';o.frequency.value=f;g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(.055,t+.02);g.gain.exponentialRampToValueAtTime(.0001,t+.46);o.connect(g);g.connect(musicGain);o.start(t);o.stop(t+.5);
+    if(musicStep%4===0){const bass=audioCtx.createOscillator(),bg=audioCtx.createGain();bass.type='sine';bass.frequency.value=f/2;bg.gain.setValueAtTime(.0001,t);bg.gain.exponentialRampToValueAtTime(.045,t+.02);bg.gain.exponentialRampToValueAtTime(.0001,t+.48);bass.connect(bg);bg.connect(musicGain);bass.start(t);bass.stop(t+.5)}
+}
+function startMusic(){if(!ensureAudio())return;if(!musicTimer){musicTimer=setInterval(musicTick,520);musicTick()}}
+function stopMusic(){if(musicTimer){clearInterval(musicTimer);musicTimer=null}}
+function saveV25Settings(){
+    try{localStorage.setItem(V25_SETTINGS_KEY,JSON.stringify({musicOn,sfxOn,mapOn,dayNightOn,taskArrowEnabled:S.taskArrowEnabled!==false}));}catch(e){}
+}
+function loadV25Settings(){
+    try{const d=JSON.parse(localStorage.getItem(V25_SETTINGS_KEY)||"null")||{};
+        if(typeof d.musicOn==='boolean')musicOn=d.musicOn;
+        if(typeof d.sfxOn==='boolean')sfxOn=d.sfxOn;
+        if(typeof d.mapOn==='boolean')mapOn=d.mapOn;
+        if(typeof d.dayNightOn==='boolean')dayNightOn=d.dayNightOn;
+        if(typeof d.taskArrowEnabled==='boolean')S.taskArrowEnabled=d.taskArrowEnabled;
+    }catch(e){}
+}
+function updateV25Controls(){
+    const m=$("musicBtn"), f=$("sfxBtn"), d=$("dayBtn");
+    if(m)m.textContent=musicOn?'🎵 Music ON':'🔇 Music OFF';
+    if(f)f.textContent=sfxOn?'🔊 SFX ON':'🔇 SFX OFF';
+    if(d)d.textContent=dayNightOn?'🌤️ Day/Night ON':'🌙 Night Locked';
+    const p=$("mapPanel"), b=$("mapToggleBtn"); if(p)b&&(b.textContent=mapOn?'🗺️':'🗺️',b.setAttribute('aria-label',mapOn?'Hide map':'Show map')); if(p)p.classList.toggle('hidden',!mapOn);
+    updateTaskArrowButton();
+}
+let recordingMode=false;
+function toggleRecordingMode(){
+    recordingMode=!recordingMode;
+    document.body.classList.toggle('recordingMode',recordingMode);
+    const b=$('recordBtn'); if(b)b.textContent=recordingMode?'⏹️ Exit YouTube Mode':'🔴 YouTube Mode';
+    msg(recordingMode?'YouTube Recording Mode: HUD hidden.':'YouTube Recording Mode off.',1.5);
+}
+
+function toggleMap(){mapOn=!mapOn;S.mapEnabled=mapOn;updateV25Controls();saveV25Settings();}
+function applyDayNight(){
+    const t=S.worldTime||.28;
+    const a=(t*Math.PI*2)-Math.PI/2;
+    const daylight=Math.max(.12,Math.sin(a)*.5+.5);
+    sun.intensity=dayNightOn ? .7+daylight*2.55 : 3.25;
+    scene.background.set(dayNightOn ? new THREE.Color().setHSL(.57,.55,.30+.27*daylight) : 0x91c5ed);
+    scene.fog.color.copy(scene.background);
+}
+function toggleDayNight(){dayNightOn=!dayNightOn;S.dayNightEnabled=dayNightOn;applyDayNight();updateV25Controls();saveV25Settings();}
+
+function toggleMusic(){musicOn=!musicOn;if(musicOn)startMusic();else stopMusic();updateV25Controls();saveV25Settings()}
+function toggleSfx(){sfxOn=!sfxOn;updateV25Controls();saveV25Settings()}
+
+let THREE;
+try{
+    // V28 Playables build: certification uses the bundled relative Three.js file.
+    THREE = await import("./three/three.module.js");
+}catch(localErr){
+    if(typeof ytgame!=="undefined" && ytgame.IN_PLAYABLES_ENV){
+        document.body.innerHTML = '<div style="font:600 18px system-ui;padding:24px;background:#07121c;color:#fff;min-height:100vh">Emotion Powers V28 needs the bundled <b>three/three.module.js</b> file for YouTube Playables.</div>';
+        throw localErr;
+    }
+    // Development-only fallback so the standalone HTML still runs in a normal browser.
+    THREE = await import("https://cdn.jsdelivr.net/npm/three@0.180.0/build/three.module.js");
+}
+
+
+/* =========================
+   DOM
+========================= */
+
+const $ = id =>
+    document.getElementById(id);
+
+/* =========================
+   YOUTUBE PLAYABLES BRIDGE
+========================= */
+const playable={inEnv:typeof ytgame!=="undefined" && !!ytgame.IN_PLAYABLES_ENV,firstFrame:false,ready:false,saveReady:false,audioAllowed:true};
+function playableFirstFrame(){
+    if(playable.firstFrame) return;
+    playable.firstFrame=true;
+    try{ if(typeof ytgame!=="undefined" && ytgame.game?.firstFrameReady) ytgame.game.firstFrameReady(); }catch(err){ console.warn("Playables firstFrameReady",err); }
+}
+function playableReady(){
+    if(playable.ready) return;
+    playable.ready=true;
+    try{ if(typeof ytgame!=="undefined" && ytgame.game?.gameReady) ytgame.game.gameReady(); }catch(err){ console.warn("Playables gameReady",err); }
+}
+function playableSendScore(){
+    if(!playable.inEnv || typeof ytgame==="undefined" || !ytgame.engagement?.sendScore) return;
+    const score=Math.min(Number.MAX_SAFE_INTEGER,Math.max(0,Math.floor(S.level*1000+S.enemiesDefeated*50+S.shadowDefeated*75+S.policeDefeated*25+S.crystals*10)));
+    try{ ytgame.engagement.sendScore({value:score}); }catch(err){ console.warn("Playables score failed",err); }
+}
+function playableApplyAudio(){
+    if(!masterGain) return;
+    const allowed=playable.audioAllowed!==false;
+    masterGain.gain.value=allowed?.8:0;
+}
+async function playableSave(data){
+    if(!playable.inEnv || typeof ytgame==="undefined" || !ytgame.game?.saveData || !playable.saveReady) return;
+    try{ await ytgame.game.saveData(JSON.stringify(data)); }catch(err){ console.warn("Playables cloud save failed",err); }
+}
+async function playableLoad(){
+    if(!playable.inEnv || typeof ytgame==="undefined" || !ytgame.game?.loadData) return null;
+    try{
+        const raw=await ytgame.game.loadData();
+        playable.saveReady=true;
+        return raw ? JSON.parse(raw) : null;
+    }catch(err){
+        playable.saveReady=true;
+        console.warn("Playables cloud load failed",err);
+        return null;
+    }
+}
+function playablePause(){
+    if(!S.started) return;
+    S.paused=true;
+    if(audioCtx?.state==='running') audioCtx.suspend().catch(()=>{});
+    if(ui.pause) ui.pause.style.display="flex";
+}
+function playableResume(){
+    if(!S.started) return;
+    S.paused=false;
+    if(audioCtx?.state==='suspended') audioCtx.resume().catch(()=>{});
+    if(ui.pause) ui.pause.style.display="none";
+    clock.getDelta();
+}
+if(typeof ytgame!=="undefined" && ytgame.system){
+    try{
+        playable.audioAllowed=ytgame.system.isAudioEnabled?.()!==false;
+        ytgame.system.onAudioEnabledChange?.((enabled)=>{ playable.audioAllowed=!!enabled; playableApplyAudio(); if(!enabled) stopMusic(); });
+        ytgame.system.onPause(playablePause); ytgame.system.onResume(playableResume);
+    }catch(err){ console.warn("Playables system integration",err); }
+}
+
+/* =========================
+   PLAYABLE LOADING
+========================= */
+
+function showLoading(text="Preparing world..."){
+    const screen=$("loadingScreen");
+    if(!screen) return;
+    screen.style.display="flex";
+    setLoading(0,text);
+}
+function setLoading(percent,text){
+    const fill=$("loadingFill"), label=$("loadingPercent"), message=$("loadingText");
+    percent=Math.max(0,Math.min(100,percent));
+    if(fill) fill.style.width=percent+"%";
+    if(label) label.textContent=Math.round(percent)+"%";
+    if(message && text) message.textContent=text;
+}
+function hideLoading(){ const screen=$("loadingScreen"); if(screen) screen.style.display="none"; }
+let startingGame=false;
+
+async function startWithLoading(loadSaved){
+    requestMobileLandscape();
+    if(startingGame) return;
+    startingGame=true;
+    showLoading(loadSaved ? "Loading saved game..." : "Starting a new game...");
+    try{
+        setLoading(15,"Preparing game systems...");
+        await new Promise(r=>setTimeout(r,40));
+        let cloudSave=null;
+        if(playable.inEnv){
+            setLoading(30,"Preparing save system...");
+            cloudSave=await playableLoad();
+        }
+        setLoading(50,loadSaved?"Restoring saved progress...":"Resetting game...");
+        await new Promise(r=>setTimeout(r,40));
+        if(loadSaved){
+            let loaded=false;
+            if(cloudSave){ loaded=applySaveData(cloudSave); }
+            if(!loaded) loaded=loadGame();
+            if(!loaded){ resetGameState(); msg("No save found — starting a new game."); }
+        }else{
+            const existing=localStorage.getItem(V25_SAVE_KEY)||localStorage.getItem("emotionPowersV27")||localStorage.getItem("emotionPowersV25")||localStorage.getItem("emotionPowersV24")||localStorage.getItem("emotionPowersV23")||localStorage.getItem("emotionPowersV22")||localStorage.getItem("emotionPowersV9");
+            if(existing) localStorage.setItem("emotionPowersV28Backup",existing);
+            resetGameState();
+        }
+        setLoading(80,"Preparing missions and world...");
+        await new Promise(r=>setTimeout(r,40));
+        startGame();
+        if(!loadSaved){ await saveGame(true); }
+        setLoading(100,loadSaved?"Save loaded!":"World ready!");
+        await new Promise(r=>setTimeout(r,60));
+        hideLoading();
+        playableReady();
+    }finally{
+        startingGame=false;
+    }
+}
+
+
+const ui = {
+
+    start:$("start"),
+    hud:$("hud"),
+    quest:$("quest"),
+
+    questText:$("questText"),
+
+    level:$("level"),
+    xp:$("xp"),
+    need:$("need"),
+
+    hp:$("hp"),
+    maxhp:$("maxhp"),
+    hpbar:$("hpbar"),
+
+    coins:$("coins"),
+    crystals:$("crystals"),
+
+    power:$("power"),
+    mode:$("mode"),
+
+    prompt:$("prompt"),
+    msg:$("msg"),
+
+    dialog:$("dialog"),
+    dialogName:$("dialogName"),
+    dialogText:$("dialogText"),
+
+    shop:$("shop"),
+    pause:$("pause"),
+
+    powers:$("powers"),
+
+    compass:$("compass"),
+    taskArrow:$("taskArrow"),
+    taskArrowTitle:$("taskArrowTitle"),
+    taskArrowIcon:$("taskArrowIcon"),
+    taskArrowInfo:$("taskArrowInfo"),
+
+    map:$("map"),
+    bossIndicator:$("bossIndicator"),
+    bossName:$("bossName"),
+    bossDistance:$("bossDistance"),
+    mutatePanel:$("mutatePanel"),
+    mutateBtn:$("mutateBtn"),
+    mutatePower:$("mutatePower"),
+    cinematicOverlay:$("cinematicOverlay"),
+    cinematicTitle:$("cinematicTitle"),
+    cinematicText:$("cinematicText")
+};
+
+
+/* =========================
+   GAME STATE
+========================= */
+
+const S = {
+
+    level:1,
+
+    xp:0,
+    need:100,
+
+    hp:100,
+    maxhp:100,
+
+    coins:25,
+    crystals:0,
+
+    speedLevel:1,
+    powerLevel:1,
+
+    quest:0,
+    talks:0,
+
+    enemiesDefeated:0,
+    shadowDefeated:0,
+    policeDefeated:0,
+
+    selected:-1,
+
+    unlocked:new Set(),
+
+    defeated:new Set(),
+
+    collected:new Set(),
+
+    started:false,
+
+    paused:false,
+
+    inVehicle:false,
+
+    flying:false,
+    taskArrowEnabled:true,
+    mutateUnlocked:false,
+    mutated:false,
+    ultimatePower:null,
+    bossesUnlocked:false,
+    currentBoss:-1,
+    bossDefeated:new Set(),
+    madness:false,
+    curseBroken:false,
+    mapEnabled:true,
+    dayNightEnabled:true,
+    worldTime:.28
+};
+
+
+const TASK_ARROW_KEY = "emotionPowersTaskArrow";
+try{ S.taskArrowEnabled = localStorage.getItem(TASK_ARROW_KEY) !== "0"; }catch(e){}
+function updateTaskArrowButton(){
+    const b=$("taskArrowBtn"); if(!b) return;
+    b.textContent=S.taskArrowEnabled?"🧭 Tasks ON":"🚫 Tasks OFF";
+    b.style.opacity=S.taskArrowEnabled?"1":".72";
+}
+function toggleTaskArrow(){
+    S.taskArrowEnabled=!S.taskArrowEnabled;
+    try{ localStorage.setItem(TASK_ARROW_KEY,S.taskArrowEnabled?"1":"0"); }catch(e){}
+    updateTaskArrowButton();
+    if(!S.taskArrowEnabled && ui?.taskArrow) ui.taskArrow.style.display="none";
+    if(S.taskArrowEnabled && typeof updateTaskArrow==='function') updateTaskArrow(true);
+}
+
+const names = [
+
+    "Calm",
+    "Anger",
+    "Joy",
+    "Sadness",
+    "Fear",
+    "Surprise",
+    "Disgust",
+    "Love",
+    "Flight"
+
+];
+
+
+const icons = [
+
+    "😌",
+    "😡",
+    "😂",
+    "😢",
+    "😨",
+    "😮",
+    "🤢",
+    "❤️",
+    "✈️"
+
+];
+
+
+const colors = [
+
+    0x39a9ff,
+    0xff302f,
+    0xffd329,
+    0x5c9cff,
+    0x9d4dff,
+    0xffff7a,
+    0x7ed957,
+    0xff62ad,
+    0x8de8ff
+
+];
+
+
+/* =========================
+   THREE.JS
+========================= */
+
+const scene =
+    new THREE.Scene();
+
+scene.background =
+    new THREE.Color(0x91c5ed);
+
+scene.fog =
+    new THREE.Fog(
+        0x91c5ed,
+        90,
+        520
+    );
+
+
+const camera =
+    new THREE.PerspectiveCamera(
+        62,
+        innerWidth / innerHeight,
+        .1,
+        1400
+    );
+
+
+const isMobile =
+    window.matchMedia("(max-width: 900px), (pointer: coarse)").matches;
+
+const renderer =
+    new THREE.WebGLRenderer({
+        antialias:!isMobile,
+        powerPreference:"high-performance"
+    });
+
+
+renderer.setSize(
+    innerWidth,
+    innerHeight
+);
+
+renderer.setPixelRatio(
+    Math.min(devicePixelRatio, isMobile ? 1.0 : 1.25)
+);
+
+renderer.shadowMap.enabled = !isMobile;
+
+renderer.shadowMap.type =
+    THREE.PCFSoftShadowMap;
+
+renderer.outputColorSpace =
+    THREE.SRGBColorSpace;
+
+if("ACESFilmicToneMapping" in THREE){
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.08;
+}
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+function resizeGame(){
+    const w = Math.max(1, window.innerWidth);
+    const h = Math.max(1, window.innerHeight);
+    camera.aspect = w / h;
+    camera.updateProjectionMatrix();
+    renderer.setSize(w, h, false);
+}
+window.addEventListener('resize', resizeGame, {passive:true});
+window.addEventListener('orientationchange', () => setTimeout(resizeGame, 120));
+resizeGame();
+
+async function requestMobileLandscape(){
+    if(!isMobile) return;
+    try{
+        if(screen.orientation && screen.orientation.lock){
+            await screen.orientation.lock('landscape');
+        }
+    }catch(err){}
+    resizeGame();
+}
+
+playableFirstFrame();
+
+
+const clock =
+    new THREE.Clock();
+
+
+/* =========================
+   LIGHTING
+========================= */
+
+scene.add(
+    new THREE.HemisphereLight(
+        0xdff6ff,
+        0x2f4d35,
+        2.25
+    )
+);
+
+
+const sun =
+    new THREE.DirectionalLight(
+        0xfff4d6,
+        3.25
+    );
+
+sun.position.set(
+    90,
+    130,
+    70
+);
+
+sun.castShadow = !isMobile;
+
+if(!isMobile){
+    sun.shadow.mapSize.set(1024,1024);
+    sun.shadow.camera.left = -120;
+    sun.shadow.camera.right = 120;
+    sun.shadow.camera.top = 120;
+    sun.shadow.camera.bottom = -120;
+}
+
+scene.add(sun);
+
+
+/* =========================
+   MATERIALS
+========================= */
+
+const M = {
+
+    skin:new THREE.MeshStandardMaterial({
+        color:0xffc7a3,
+        roughness:.7
+    }),
+
+    hair:new THREE.MeshStandardMaterial({
+        color:0xf6f7ff,
+        roughness:.5
+    }),
+
+    black:new THREE.MeshStandardMaterial({
+        color:0x10151e,
+        roughness:.48
+    }),
+
+    blue:new THREE.MeshStandardMaterial({
+        color:0x2c72c9,
+        roughness:.55
+    }),
+
+    green:new THREE.MeshStandardMaterial({
+        color:0x3f9d54,
+        roughness:.75
+    }),
+
+    brown:new THREE.MeshStandardMaterial({
+        color:0x69432c,
+        roughness:.9
+    }),
+
+    stone:new THREE.MeshStandardMaterial({
+        color:0x777d85,
+        roughness:.9
+    }),
+
+    glass:new THREE.MeshStandardMaterial({
+        color:0x4d9dcc,
+        roughness:.18,
+        metalness:.15
+    }),
+
+    gold:new THREE.MeshStandardMaterial({
+        color:0xe7a922,
+        roughness:.4,
+        metalness:.35
+    }),
+
+    white:new THREE.MeshStandardMaterial({
+        color:0xe9edf2,
+        roughness:.7
+    }),
+
+    red:new THREE.MeshStandardMaterial({
+        color:0xc73838,
+        roughness:.55
+    }),
+
+    purple:new THREE.MeshStandardMaterial({
+        color:0x7544a8,
+        roughness:.55
+    })
+
+};
+
+
+/* =========================
+   HELPERS
+========================= */
+
+function box(
+    w,
+    h,
+    d,
+    material,
+    x,
+    y,
+    z,
+    parent=scene
+){
+
+    const m =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                w,
+                h,
+                d
+            ),
+            material
+        );
+
+    m.position.set(
+        x,
+        y,
+        z
+    );
+
+    m.castShadow = true;
+    m.receiveShadow = true;
+
+    parent.add(m);
+
+    return m;
+}
+
+
+function capsule(
+    r,
+    len,
+    material
+){
+
+    const m =
+        new THREE.Mesh(
+            new THREE.CapsuleGeometry(
+                r,
+                len,
+                8,
+                14
+            ),
+            material
+        );
+
+    m.castShadow = true;
+    m.receiveShadow = true;
+
+    return m;
+}
+
+
+/* =========================
+   NAME LABELS
+========================= */
+
+function label(
+    text,
+    parent,
+    y=4
+){
+
+    const c =
+        document.createElement(
+            "canvas"
+        );
+
+    c.width = 512;
+    c.height = 96;
+
+    const x =
+        c.getContext("2d");
+
+    x.clearRect(
+        0,
+        0,
+        512,
+        96
+    );
+
+    x.fillStyle =
+        "rgba(0,0,0,.72)";
+
+    x.roundRect(
+        5,
+        8,
+        502,
+        78,
+        20
+    );
+
+    x.fill();
+
+    x.fillStyle =
+        "#fff";
+
+    x.font =
+        "bold 34px Arial";
+
+    x.textAlign =
+        "center";
+
+    x.fillText(
+        text,
+        256,
+        59
+    );
+
+    const sprite =
+        new THREE.Sprite(
+            new THREE.SpriteMaterial({
+                map:new THREE.CanvasTexture(c),
+                transparent:true,
+                depthTest:false
+            })
+        );
+
+    sprite.scale.set(
+        5.2,
+        1,
+        1
+    );
+
+    sprite.position.y =
+        y;
+
+    parent.add(sprite);
+
+    return sprite;
+}
+
+
+/* =========================
+   HUMANOID CHARACTER
+========================= */
+
+function humanoid(opts={}){
+
+    const g =
+        new THREE.Group();
+
+    const outfit =
+        opts.outfit || M.black;
+
+    const hair =
+        opts.hair || M.hair;
+
+    const scale =
+        opts.scale || 1;
+
+
+    /* torso */
+
+    const torso =
+        capsule(
+            .52,
+            1.08,
+            outfit
+        );
+
+    torso.position.y =
+        1.58;
+
+    g.add(torso);
+
+
+    /* head */
+
+    const head =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .63,
+                20,
+                16
+            ),
+            M.skin
+        );
+
+    head.position.y =
+        3.02;
+
+    head.castShadow = true;
+
+    g.add(head);
+
+
+    /* hair */
+
+    const cap =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .68,
+                18,
+                12
+            ),
+            hair
+        );
+
+    cap.scale.y = .68;
+
+    cap.position.y =
+        3.44;
+
+    cap.castShadow = true;
+
+    g.add(cap);
+
+
+    /* hair spikes */
+
+    for(
+        let i=0;
+        i<10;
+        i++
+    ){
+
+        const a =
+            i *
+            Math.PI *
+            2 /
+            10;
+
+        const spike =
+            new THREE.Mesh(
+                new THREE.ConeGeometry(
+                    .18,
+                    .7,
+                    6
+                ),
+                hair
+            );
+
+        spike.position.set(
+            Math.sin(a)*.48,
+            3.62,
+            Math.cos(a)*.48
+        );
+
+        spike.rotation.z =
+            -Math.sin(a)*.5;
+
+        spike.rotation.x =
+            Math.cos(a)*.5;
+
+        spike.castShadow = true;
+
+        g.add(spike);
+    }
+
+
+    /* eyes */
+
+    const eyeMaterial =
+        new THREE.MeshBasicMaterial({
+            color:
+                opts.eye ||
+                0x5de5ff
+        });
+
+
+    [-.22,.22].forEach(
+        x=>{
+
+            const eye =
+                new THREE.Mesh(
+                    new THREE.SphereGeometry(
+                        .12,
+                        14,
+                        10
+                    ),
+                    eyeMaterial
+                );
+
+            eye.position.set(
+                x,
+                3.06,
+                .58
+            );
+
+            g.add(eye);
+            const highlight = new THREE.Mesh(new THREE.SphereGeometry(.035,8,8),new THREE.MeshBasicMaterial({color:0xffffff}));
+            highlight.position.set(x-.025,3.10,.675);
+            g.add(highlight);
+
+        }
+    );
+
+
+    /* expressive anime eyebrows */
+    const browMat = new THREE.MeshBasicMaterial({color:0x171717});
+    [-.22,.22].forEach(x=>{
+        const brow = new THREE.Mesh(new THREE.BoxGeometry(.20,.045,.035),browMat);
+        brow.position.set(x,3.25,.585);
+        brow.rotation.z=x<0?.10:-.10;
+        g.add(brow);
+    });
+
+    /* mouth */
+
+    box(
+        .22,
+        .035,
+        .025,
+        new THREE.MeshBasicMaterial({
+            color:0x57262c
+        }),
+        0,
+        2.84,
+        .59,
+        g
+    );
+
+
+    /* limbs */
+
+    function limb(
+        x,
+        y,
+        material
+    ){
+
+        const pivot =
+            new THREE.Group();
+
+        pivot.position.set(
+            x,
+            y,
+            0
+        );
+
+        const mesh =
+            capsule(
+                .17,
+                .68,
+                material
+            );
+
+        mesh.position.y =
+            -.5;
+
+        pivot.add(mesh);
+
+        g.add(pivot);
+
+        return pivot;
+    }
+
+
+    const leftArm =
+        limb(
+            -.72,
+            2.27,
+            outfit
+        );
+
+    const rightArm =
+        limb(
+            .72,
+            2.27,
+            outfit
+        );
+
+    const leftLeg =
+        limb(
+            -.3,
+            1.02,
+            outfit
+        );
+
+    const rightLeg =
+        limb(
+            .3,
+            1.02,
+            outfit
+        );
+
+
+    /* shoes — cleaner human/anime proportions */
+    const shoeMat = opts.shoe || new THREE.MeshStandardMaterial({color:0x151922,roughness:.72});
+    const footLeft = new THREE.Mesh(new THREE.BoxGeometry(.38,.22,.72),shoeMat);
+    footLeft.position.set(-.30,.12,.20);
+    footLeft.castShadow = true;
+    g.add(footLeft);
+
+    const footRight = footLeft.clone();
+    footRight.position.x = .30;
+    g.add(footRight);
+
+    /* hands */
+    const handMat = opts.skin || M.skin;
+    [-.72,.72].forEach(x=>{
+        const hand = new THREE.Mesh(new THREE.SphereGeometry(.19,14,10),handMat);
+        hand.position.set(x,1.62,0);
+        hand.castShadow=true;
+        g.add(hand);
+    });
+
+    /* neck + collar make the silhouette read as a person */
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(.18,.20,.28,12),handMat);
+    neck.position.y=2.45;
+    neck.castShadow=true;
+    g.add(neck);
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(.29,.045,8,20),outfit);
+    collar.rotation.x=Math.PI/2;
+    collar.position.y=2.36;
+    g.add(collar);
+
+
+    g.scale.setScalar(scale);
+
+
+    g.userData.parts = {
+
+        la:leftArm,
+        ra:rightArm,
+
+        ll:leftLeg,
+        rl:rightLeg,
+
+        fl:footLeft,
+        fr:footRight
+
+    };
+
+
+    return g;
+}
+
+
+
+/* =========================
+   WORLD COLLISION SYSTEM
+========================= */
+
+const worldColliders = [];
+
+function addRectCollider(x,z,hx,hz,owner=null,type="static"){
+    worldColliders.push({
+        shape:"rect",
+        x,z,hx,hz,
+        owner,
+        type
+    });
+}
+
+function addCircleCollider(x,z,r,owner=null,type="dynamic"){
+    worldColliders.push({
+        shape:"circle",
+        x,z,r,
+        owner,
+        type
+    });
+}
+
+function removeOwnerColliders(owner){
+    for(let i=worldColliders.length-1;i>=0;i--){
+        if(worldColliders[i].owner===owner) worldColliders.splice(i,1);
+    }
+}
+
+function circleHitsCollider(x,z,r,c){
+    if(c.shape==="circle"){
+        const dx=x-c.x;
+        const dz=z-c.z;
+        const rr=r+c.r;
+        return dx*dx+dz*dz < rr*rr;
+    }
+
+    const qx=THREE.MathUtils.clamp(x,c.x-c.hx,c.x+c.hx);
+    const qz=THREE.MathUtils.clamp(z,c.z-c.hz,c.z+c.hz);
+    const dx=x-qx;
+    const dz=z-qz;
+    return dx*dx+dz*dz < r*r;
+}
+
+function canOccupy(x,z,r,ignoreOwner=null,allowTypes=null){
+    for(const c of worldColliders){
+        if(c.owner===ignoreOwner) continue;
+        if(allowTypes && !allowTypes.includes(c.type)) continue;
+        if(circleHitsCollider(x,z,r,c)) return false;
+    }
+    return true;
+}
+
+/* Move an actor one axis at a time.
+   This gives smooth wall sliding instead of getting stuck. */
+function moveWithCollision(obj,dx,dz,r,ignoreOwner=null){
+    const nx=obj.position.x+dx;
+    const nz=obj.position.z+dz;
+
+    if(canOccupy(nx,obj.position.z,r,ignoreOwner)){
+        obj.position.x=nx;
+    }
+
+    if(canOccupy(obj.position.x,nz,r,ignoreOwner)){
+        obj.position.z=nz;
+    }
+}
+
+function rebuildDynamicColliders(){
+    /* Dynamic colliders are rebuilt each frame for vehicles/NPCs/enemies. */
+    for(let i=worldColliders.length-1;i>=0;i--){
+        if(worldColliders[i].type==="vehicle" ||
+           worldColliders[i].type==="npc" ||
+           worldColliders[i].type==="enemy"){
+            worldColliders.splice(i,1);
+        }
+    }
+
+    vehicles.forEach(v=>{
+        if(v.userData.driver!==player){
+            addCircleCollider(v.position.x,v.position.z,3.0,v,"vehicle");
+        }
+    });
+
+    npcs.forEach(n=>{
+        addCircleCollider(n.position.x,n.position.z,1.15,n,"npc");
+    });
+
+    enemies.forEach(e=>{
+        if(!e.userData.dead){
+            addCircleCollider(e.position.x,e.position.z,1.25,e,"enemy");
+        }
+    });
+}
+
+/* =========================
+   PLAYER
+========================= */
+
+const player =
+    humanoid({
+
+        outfit:M.black,
+
+        hair:M.hair,
+
+        eye:0x3f8dff
+
+    });
+
+
+player.position.set(
+    0,
+    0,
+    25
+);
+
+scene.add(player);
+
+/* Player body radius used by the collision system. */
+const PLAYER_RADIUS = 1.05;
+
+const P =
+    player.userData.parts;
+
+
+/* =========================
+   GROUND TEXTURE
+========================= */
+
+function groundTexture(){
+
+    const c =
+        document.createElement(
+            "canvas"
+        );
+
+    c.width = 512;
+    c.height = 512;
+
+    const x =
+        c.getContext("2d");
+
+    x.fillStyle =
+        "#4c9650";
+
+    x.fillRect(
+        0,
+        0,
+        512,
+        512
+    );
+
+
+    for(
+        let i=0;
+        i<900;
+        i++
+    ){
+
+        x.fillStyle =
+            Math.random()>.5
+            ? "#579e55"
+            : "#438c48";
+
+        x.fillRect(
+            Math.random()*512,
+            Math.random()*512,
+            2,
+            2
+        );
+    }
+
+
+    return new THREE.CanvasTexture(c);
+}
+
+
+const groundMat =
+    new THREE.MeshStandardMaterial({
+        map:groundTexture(),
+        roughness:1
+    });
+
+
+const ground =
+    new THREE.Mesh(
+        new THREE.PlaneGeometry(
+            1000,
+            1000
+        ),
+        groundMat
+    );
+
+
+ground.rotation.x =
+    -Math.PI/2;
+
+ground.receiveShadow = true;
+
+scene.add(ground);
+
+
+/* =========================
+   ROADS
+========================= */
+
+function road(
+    x,
+    z,
+    w,
+    d
+){
+
+    box(
+        w,
+        .08,
+        d,
+        new THREE.MeshStandardMaterial({
+            color:0x343b43,
+            roughness:.9
+        }),
+        x,
+        .045,
+        z
+    );
+
+
+    if(w>d){
+
+        for(
+            let p=-w/2+8;
+            p<w/2;
+            p+=18
+        ){
+
+            box(
+                7,
+                .035,
+                .18,
+                M.gold,
+                x+p,
+                .1,
+                z
+            );
+
+        }
+
+    }else{
+
+        for(
+            let p=-d/2+8;
+            p<d/2;
+            p+=18
+        ){
+
+            box(
+                .18,
+                .035,
+                7,
+                M.gold,
+                x,
+                .1,
+                z+p
+            );
+
+        }
+
+    }
+}
+
+
+[-420,-360,-300,-240,-180,-120,-60,0,60,120,180,240,300,360,420]
+.forEach(
+    x =>
+        road(
+            x,
+            0,
+            8,
+            500
+        )
+);
+
+
+[-420,-360,-300,-240,-180,-120,-60,0,60,120,180,240,300,360,420]
+.forEach(
+    z =>
+        road(
+            0,
+            z,
+            500,
+            8
+        )
+);
+
+
+/* sidewalks */
+
+function sidewalk(
+    x,
+    z,
+    w,
+    d
+){
+
+    box(
+        w,
+        .16,
+        d,
+        new THREE.MeshStandardMaterial({
+            color:0x85898d,
+            roughness:.95
+        }),
+        x,
+        .08,
+        z
+    );
+}
+
+
+[-420,-360,-300,-240,-180,-120,-60,0,60,120,180,240,300,360,420]
+.forEach(
+    x=>{
+
+        sidewalk(
+            x-5,
+            0,
+            2,
+            500
+        );
+
+        sidewalk(
+            x+5,
+            0,
+            2,
+            500
+        );
+
+    }
+);
+
+
+[-420,-360,-300,-240,-180,-120,-60,0,60,120,180,240,300,360,420]
+.forEach(
+    z=>{
+
+        sidewalk(
+            0,
+            z-5,
+            500,
+            2
+        );
+
+        sidewalk(
+            0,
+            z+5,
+            500,
+            2
+        );
+
+    }
+);
+
+
+/* =========================
+   MOUNTAINS
+========================= */
+
+function mountain(
+    x,
+    z,
+    r,
+    h
+){
+
+    const m =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(
+                r,
+                h,
+                8
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x5e7564,
+                roughness:1
+            })
+        );
+
+    m.position.set(
+        x,
+        h/2-1,
+        z
+    );
+
+    m.castShadow = true;
+
+    scene.add(m);
+    addCircleCollider(x,z,r*.9,m,"static");
+}
+
+
+for(
+    let i=0;
+    i<18;
+    i++
+){
+
+    const a =
+        i/18 *
+        Math.PI*2;
+
+    mountain(
+        Math.cos(a)*470,
+        Math.sin(a)*470,
+        30+(i%3)*10,
+        50+(i%4)*15
+    );
+
+}
+
+
+/* =========================
+   TREES
+========================= */
+
+function tree(
+    x,
+    z,
+    s=1
+){
+
+    const g =
+        new THREE.Group();
+
+
+    const trunk =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                .35*s,
+                .48*s,
+                3*s,
+                7
+            ),
+            M.brown
+        );
+
+    trunk.position.y =
+        1.5*s;
+
+    trunk.castShadow = !isMobile;
+
+    g.add(trunk);
+
+
+    const leafMat =
+        new THREE.MeshStandardMaterial({
+            color:0x2d7e43,
+            roughness:.95
+        });
+
+
+    for(
+        let i=0;
+        i<3;
+        i++
+    ){
+
+        const leaves =
+            new THREE.Mesh(
+                new THREE.ConeGeometry(
+                    2*s-i*.3*s,
+                    2.7*s,
+                    7
+                ),
+                leafMat
+            );
+
+        leaves.position.y =
+            (3+i*1.15)*s;
+
+        leaves.castShadow = !isMobile;
+
+        g.add(leaves);
+
+    }
+
+
+    g.position.set(
+        x,
+        0,
+        z
+    );
+
+    scene.add(g);
+    addCircleCollider(x,z,1.65*s,g,"static");
+}
+
+
+for(
+    let i=0;
+    i<300;
+    i++
+){
+
+    const x =
+        Math.random()*880-440;
+
+    const z =
+        Math.random()*880-440;
+
+    if(
+        Math.abs(x)<425 &&
+        Math.abs(z)<425 &&
+        (
+            Math.abs(x%60)<14 ||
+            Math.abs(z%60)<14
+        )
+    ){
+        continue;
+    }
+
+    tree(
+        x,
+        z,
+        .7+Math.random()*.65
+    );
+
+}
+
+
+/* =========================
+   HOUSES
+========================= */
+
+function house(
+    x,
+    z,
+    color,
+    name
+){
+
+    const g =
+        new THREE.Group();
+
+
+    const wallMat =
+        new THREE.MeshStandardMaterial({
+            color,
+            roughness:.82
+        });
+
+
+    box(
+        14,
+        8,
+        12,
+        wallMat,
+        0,
+        4,
+        0,
+        g
+    );
+
+
+    const roof =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(
+                10,
+                4,
+                4
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x30343b,
+                roughness:.85
+            })
+        );
+
+
+    roof.rotation.y =
+        Math.PI/4;
+
+    roof.position.y =
+        10;
+
+    roof.castShadow = false;
+
+    g.add(roof);
+
+
+    /* door */
+
+    box(
+        2.5,
+        4,
+        .18,
+        M.brown,
+        0,
+        2,
+        6.1,
+        g
+    );
+
+
+    /* windows */
+
+    for(
+        const wx of [-4,4]
+    ){
+
+        box(
+            2.5,
+            2,
+            .18,
+            M.glass,
+            wx,
+            4.8,
+            6.08,
+            g
+        );
+
+    }
+
+
+    box(
+        2.5,
+        2,
+        .18,
+        M.glass,
+        -4,
+        4.8,
+        -6.08,
+        g
+    );
+
+
+    box(
+        2.5,
+        2,
+        .18,
+        M.glass,
+        4,
+        4.8,
+        -6.08,
+        g
+    );
+
+
+    g.position.set(
+        x,
+        0,
+        z
+    );
+
+
+    scene.add(g);
+    /* 14 x 12 house body becomes a solid collider. */
+    addRectCollider(x,z,7,6,g,"static");
+
+    label(
+        name,
+        g,
+        12.4
+    );
+
+}
+
+
+const houseColors = [
+
+    0xb87952,
+    0x6d8eb2,
+    0x8b6bb2,
+    0x5e9b68,
+    0xb36c78,
+    0x8d8d64
+
+];
+
+
+let hi=0;
+
+
+for(
+    let gx=-420;
+    gx<=420;
+    gx+=30
+){
+
+    for(
+        let gz=-180;
+        gz<=180;
+        gz+=30
+    ){
+
+        if(
+            Math.abs(gx%60)<8 ||
+            Math.abs(gz%60)<8
+        ){
+            continue;
+        }
+
+
+        house(
+            gx,
+            gz,
+            houseColors[
+                hi++%
+                houseColors.length
+            ],
+            "HOUSE"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   LANDMARK BUILDINGS
+========================= */
+
+function landmark(
+    x,
+    z,
+    title,
+    color
+){
+
+    const g =
+        new THREE.Group();
+
+
+    box(
+        28,
+        12,
+        22,
+        new THREE.MeshStandardMaterial({
+            color,
+            roughness:.75
+        }),
+        0,
+        6,
+        0,
+        g
+    );
+
+
+    const roof =
+        new THREE.Mesh(
+            new THREE.ConeGeometry(
+                17,
+                6,
+                4
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x252b35,
+                roughness:.7
+            })
+        );
+
+
+    roof.rotation.y =
+        Math.PI/4;
+
+    roof.position.y =
+        15;
+
+    roof.castShadow = false;
+
+    g.add(roof);
+
+
+    box(
+        4,
+        6,
+        .25,
+        M.brown,
+        0,
+        3,
+        11.15,
+        g
+    );
+
+
+    for(
+        const q of [-8,8]
+    ){
+
+        box(
+            4,
+            3,
+            .2,
+            M.glass,
+            q,
+            7,
+            11.1,
+            g
+        );
+
+    }
+
+
+    g.position.set(
+        x,
+        0,
+        z
+    );
+
+
+    scene.add(g);
+    /* Landmark buildings are solid too. */
+    addRectCollider(x,z,14,11,g,"static");
+
+    label(
+        title,
+        g,
+        18
+    );
+
+}
+
+
+landmark(
+    -90,
+    -90,
+    "VILLAGE CENTER",
+    0x9a694b
+);
+
+landmark(
+    90,
+    -90,
+    "CITY HALL",
+    0x4f709d
+);
+
+landmark(
+    90,
+    90,
+    "POLICE HQ",
+    0x666b74
+);
+
+landmark(
+    -90,
+    90,
+    "CRYSTAL TEMPLE",
+    0x624b8a
+);
+
+
+/* =========================
+   NPCS
+========================= */
+
+const npcNames = [
+
+    "Elder Arin",
+    "Mira",
+    "Rafi",
+    "Ayla",
+    "Kian",
+    "Nora",
+    "Zain",
+    "Hadi",
+    "Sara",
+    "Bilal",
+    "Mina",
+    "Daniyal",
+    "Areeba",
+    "Rayyan",
+    "Noor",
+    "Hamza",
+    "Lara",
+    "Sami",
+    "Ibrahim",
+    "Yara",
+    "Omar",
+    "Anaya",
+    "Adam",
+    "Mariam",
+    "Guardian Ryo",
+    "Farah",
+    "Yusuf",
+    "Lina",
+    "Saad",
+    "Hiba"
+
+];
+
+
+const npcStyles = [
+
+    [M.blue,M.hair,0x62e8ff],
+    [M.green,M.gold,0xffffff],
+    [M.purple,M.hair,0x6ae8ff],
+    [M.red,M.black,0xffffff],
+    [M.gold,M.hair,0x6ae8ff],
+    [M.blue,M.black,0xffff88]
+
+];
+
+
+const npcs=[];
+
+
+npcNames.forEach(
+    (n,i)=>{
+
+        let x =
+            -165 +
+            (i%10)*36;
+
+        let z =
+            -145 +
+            Math.floor(i/10)*70;
+
+
+        if(n==="Elder Arin"){
+            x=-90;
+            z=-72;
+        }
+
+
+        if(n==="Mira"){
+            x=90;
+            z=-72;
+        }
+
+
+        if(n==="Guardian Ryo"){
+            x=-90;
+            z=105;
+        }
+
+
+        const st =
+            npcStyles[
+                i%npcStyles.length
+            ];
+
+
+        const g =
+            humanoid({
+
+                outfit:st[0],
+                hair:st[1],
+                eye:st[2],
+                scale:.88
+
+            });
+
+
+        g.position.set(
+            x,
+            0,
+            z
+        );
+
+
+        g.userData = {
+
+            name:n,
+
+            home:
+                new THREE.Vector3(
+                    x,
+                    0,
+                    z
+                ),
+
+            t:Math.random()*10,
+
+            type:
+                n==="Mira"
+                ? "merchant"
+                : n==="Elder Arin"
+                ? "elder"
+                : n==="Guardian Ryo"
+                ? "guardian"
+                : "villager"
+
+        };
+
+
+        scene.add(g);
+        addCircleCollider(x,z,1.15,g,"npc");
+
+        label(
+            n,
+            g,
+            4.5
+        );
+
+
+        npcs.push(g);
+
+    }
+);
+
+
+/* =========================
+   ENEMIES
+========================= */
+
+const enemies=[];
+
+
+function enemy(
+    x,
+    z,
+    police,
+    id
+){
+
+    const g =
+        humanoid({
+
+            outfit:
+                police
+                ? M.blue
+                : M.red,
+
+            hair:
+                police
+                ? M.black
+                : M.purple,
+
+            eye:
+                police
+                ? 0xffffff
+                : 0xff4444,
+
+            scale:
+                police
+                ? .9
+                : .95
+
+        });
+
+
+    g.position.set(
+        x,
+        0,
+        z
+    );
+
+
+    g.userData = {
+
+        id,
+        police,
+
+        hp:
+            police
+            ? 90
+            : 65,
+
+        max:
+            police
+            ? 90
+            : 65,
+
+        attack:0,
+        maxHp: police ? 90 : 65,
+        dead:false
+
+    };
+
+
+    scene.add(g);
+    addCircleCollider(x,z,1.25,g,"enemy");
+
+
+    label(
+        police
+        ? "Police Officer"
+        : "Shadow Enemy",
+        g,
+        4.5
+    );
+
+
+    const c =
+        document.createElement(
+            "canvas"
+        );
+
+    c.width=256;
+    c.height=24;
+
+
+    const ctx =
+        c.getContext("2d");
+
+
+    const spr =
+        new THREE.Sprite(
+            new THREE.SpriteMaterial({
+                map:new THREE.CanvasTexture(c),
+                transparent:true,
+                depthTest:false
+            })
+        );
+
+
+    spr.scale.set(
+        2.3,
+        .25,
+        1
+    );
+
+    spr.position.y =
+        5.2;
+
+
+    g.add(spr);
+
+
+    g.userData.bar = {
+
+        ctx,
+        tex:spr.material.map,
+        spr
+
+    };
+
+
+    updateEnemyBar(g);
+
+    enemies.push(g);
+
+}
+
+
+const POLICE_COUNT = isMobile ? 30 : 60;
+for(
+    let i=0;
+    i<POLICE_COUNT;
+    i++
+){
+
+    const a =
+        i/POLICE_COUNT*Math.PI*2;
+
+    enemy(
+        Math.cos(a)*180,
+        Math.sin(a)*180,
+        true,
+        "police"+i
+    );
+
+}
+
+const SHADOW_COUNT = isMobile ? 45 : 90;
+for(
+    let i=0;
+    i<SHADOW_COUNT;
+    i++
+){
+
+    const a =
+        i/SHADOW_COUNT*Math.PI*2;
+
+    enemy(
+        Math.cos(a)*250,
+        Math.sin(a)*250,
+        false,
+        "shadow"+i
+    );
+
+}
+
+
+/* =========================
+   BOSS / MUTATION SYSTEM
+========================= */
+const bosses=[];
+const bossData=[
+ {id:"fearBoss",name:"FEAR GUARDIAN",power:"Ultimate Fearness",color:0x9d4dff,x:420,z:-420},
+ {id:"calmBoss",name:"CALM GUARDIAN",power:"Ultimate Calm",color:0x39a9ff,x:-420,z:-420},
+ {id:"joyBoss",name:"JOY GUARDIAN",power:"Ultimate Joy",color:0xffd329,x:420,z:420},
+ {id:"sadnessBoss",name:"SADNESS GUARDIAN",power:"Ultimate Sadness",color:0x5c9cff,x:-420,z:420},
+ {id:"surpriseBoss",name:"SURPRISE GUARDIAN",power:"Ultimate Surprise",color:0xffff7a,x:300,z:-300},
+ {id:"disgustBoss",name:"DISGUST GUARDIAN",power:"Ultimate Disgust",color:0x7ed957,x:-300,z:300},
+ {id:"loveBoss",name:"LOVE GUARDIAN",power:"Ultimate Love",color:0xff62ad,x:300,z:300},
+ {id:"flightBoss",name:"FLIGHT GUARDIAN",power:"Ultimate Flight",color:0x8de8ff,x:-300,z:-300},
+ {id:"angerBoss",name:"ANGER — FINAL BOSS",power:"MADNESS",color:0xff302f,x:0,z:420,final:true}
+];
+
+function updateBossBar(b){
+ const c=b.userData.barCtx,w=360,h=30;
+ c.clearRect(0,0,w,h);c.fillStyle="#191d24";c.fillRect(0,0,w,h);
+ c.fillStyle="#d83bff";c.fillRect(3,3,(w-6)*Math.max(0,b.userData.hp)/b.userData.max,24);
+ c.strokeStyle="#fff";c.strokeRect(1,1,w-2,h-2);c.fillStyle="#fff";c.font="bold 16px Arial";c.textAlign="center";
+ c.fillText(b.userData.name+"  "+Math.ceil(Math.max(0,b.userData.hp)),w/2,20);
+ b.userData.barSprite.material.map.needsUpdate=true;
+}
+function createBoss(data,index){
+ const g=humanoid({outfit:new THREE.MeshStandardMaterial({color:data.color,roughness:.42,metalness:.08}),hair:M.black,eye:data.color,scale:1.65});
+ g.position.set(data.x,0,data.z);
+ g.userData={id:data.id,name:data.name,power:data.power,color:data.color,hp:data.final?900:420,max:data.final?900:420,attack:0,dead:false,index,final:!!data.final};
+ scene.add(g);addCircleCollider(data.x,data.z,2,g,"enemy");label(data.name,g,8.2);
+ const ring=new THREE.Mesh(new THREE.TorusGeometry(3.1,.13,8,40),new THREE.MeshBasicMaterial({color:data.color,transparent:true,opacity:.8}));
+ ring.rotation.x=Math.PI/2;ring.position.y=.08;g.add(ring);g.userData.ring=ring;
+ const bar=document.createElement("canvas");bar.width=360;bar.height=30;g.userData.barCtx=bar.getContext("2d");
+ const spr=new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(bar),transparent:true,depthTest:false}));
+ spr.scale.set(7.2,.6,1);spr.position.y=7.2;g.add(spr);g.userData.barSprite=spr;updateBossBar(g);bosses.push(g);
+}
+bossData.forEach(createBoss);
+
+function allNormalPowers(){for(let i=0;i<9;i++)if(!S.unlocked.has(i))return false;return true}
+function nextBossIndex(){for(let i=0;i<bossData.length-1;i++)if(!S.bossDefeated.has(bossData[i].id))return i;return 8}
+function activateBossMission(){
+ if(!allNormalPowers()){msg("Collect every normal emotion power first.");return}
+ S.bossesUnlocked=true;S.currentBoss=nextBossIndex();
+ const d=bossData[S.currentBoss];ui.mutatePanel.style.display="block";msg("Boss discovered: "+d.name+" — follow the arrow!",4);
+}
+function nearestBoss(){
+ let best=null,dist=Infinity;
+ bosses.forEach(b=>{if(!b.userData.dead&&S.bossesUnlocked&&b.userData.index===S.currentBoss){const d=player.position.distanceTo(b.position);if(d<dist){dist=d;best=b}}});
+ return best;
+}
+function bossDirection(){
+ const b=nearestBoss();if(!b){ui.bossIndicator.style.display="none";return}
+ ui.bossIndicator.style.display="block";ui.bossName.textContent=b.userData.name;
+ const d=player.position.distanceTo(b.position);ui.bossDistance.textContent=Math.round(d)+" m • follow the arrow";
+ const dx=b.position.x-player.position.x,dz=b.position.z-player.position.z;
+ const ang=Math.atan2(dx,dz)-player.rotation.y,deg=((ang*180/Math.PI)+360)%360;
+ const dirs=["⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️"];ui.compass.textContent=dirs[Math.round(deg/45)%8]+"  "+Math.round(d)+"m";
+}
+function bossDefeat(b){
+ if(b.userData.dead)return;
+ sfx(b.userData.final?"victory":"boss");b.userData.dead=true;b.visible=false;S.bossDefeated.add(b.userData.id);S.currentBoss=-1;removeOwnerColliders(b);
+ burst(b.userData.color,b.position,70);xp(b.userData.final?1200:500);S.coins+=b.userData.final?1000:250;
+ if(b.userData.final){S.madness=true;S.ultimatePower="MADNESS";S.curseBroken=true;activateMadness();showCinematic("MADNESS AWAKENED","The curse is broken. The world is free.",0x8b5cf6,2800);msg("THE CURSE HAS BEEN BROKEN!",5)}
+ else{S.mutateUnlocked=true;S.ultimatePower=b.userData.power;ui.mutateBtn.disabled=false;ui.mutatePower.textContent=b.userData.power+" unlocked";showCinematic("ULTIMATE POWER UNLOCKED",b.userData.power,0xff3030,2200);msg(b.userData.power+" unlocked — press MUTATE!",5)}
+ refresh();saveGame(true);
+}
+function bossUpdate(dt){
+ bosses.forEach(b=>{if(b.userData.dead||b.userData.index!==S.currentBoss)return;b.userData.ring.rotation.z+=dt*1.8;
+  const d=b.position.distanceTo(player.position);if(d<28&&!S.inVehicle){if(d>4){const dx=player.position.x-b.position.x,dz=player.position.z-b.position.z;moveWithCollision(b,dx/d*1.5*dt,dz/d*1.5*dt,2,b)}
+   b.userData.attack-=dt;if(b.userData.attack<=0&&d<5){b.userData.attack=b.userData.final?.8:1.1;S.hp-=b.userData.final?15:9;burst(b.userData.color,b.position,10);if(S.hp<=0){S.hp=S.maxhp;player.position.set(0,0,25);msg("You were overwhelmed — return and try again.")}refresh()}}});
+ bossDirection();
+}
+function showCinematic(title,text,color,duration=2200){
+ ui.cinematicOverlay.style.display="flex";ui.cinematicTitle.textContent=title;ui.cinematicText.textContent=text;
+ ui.cinematicTitle.style.textShadow=`0 0 35px #${color.toString(16).padStart(6,"0")}`;
+ setTimeout(()=>ui.cinematicOverlay.style.display="none",duration);
+}
+function setAura(color,strength=1){
+ if(player.userData.aura){player.userData.aura.material.color.setHex(color);player.userData.aura.scale.setScalar(strength);return}
+ const aura=new THREE.Mesh(new THREE.SphereGeometry(1.55,24,18),new THREE.MeshBasicMaterial({color,transparent:true,opacity:.5,side:THREE.BackSide,blending:THREE.AdditiveBlending}));
+ aura.position.y=1.8;player.add(aura);player.userData.aura=aura;
+}
+
+const V131={transforming:false,time:0,duration:3.2,color:0xff3030,label:"MUTATION",shake:0,particles:[]};
+function startTransformation(color,label,duration=3.2){
+ V131.transforming=true;V131.time=0;V131.duration=duration;V131.color=color;V131.label=label;V131.shake=.45;
+ const flash=document.getElementById('transformFlash'), lab=document.getElementById('transformLabel');
+ if(flash){flash.style.display='block';flash.style.animation='none';void flash.offsetWidth;flash.style.animation='transformFlash .9s ease-out forwards';}
+ if(lab){lab.textContent=label;lab.style.display='block';lab.style.color='#'+color.toString(16).padStart(6,'0');}
+ setAura(color,1.8);
+ burst(color,player.position,70);
+}
+function updateTransformation(dt){
+ if(!V131.transforming)return;
+ V131.time+=dt;
+ const t=Math.min(1,V131.time/V131.duration);
+ const pulse=1.5+Math.sin(V131.time*18)*.12+t*1.4;
+ if(player.userData.aura){player.userData.aura.material.opacity=.32+.28*Math.sin(V131.time*10)*.5;player.userData.aura.scale.setScalar(pulse);}
+ if(V131.time<2.2){
+   player.rotation.y+=dt*(3.5+8*(1-t));
+   if(player.userData.parts){
+     const p=player.userData.parts;
+     p.la.rotation.z=Math.sin(V131.time*18)*.55;p.ra.rotation.z=-Math.sin(V131.time*18)*.55;
+   }
+ }
+ if(Math.random()<dt*22) burst(V131.color,player.position,2);
+ V131.shake=Math.max(0,V131.shake-dt*.18);
+ if(V131.time>=V131.duration){
+   V131.transforming=false;V131.shake=0;
+   if(lab)lab.style.display='none';
+   setAura(V131.color, V131.label==='MADNESS'?2.2:1.8);
+   refresh();
+ }
+}
+function activateMadness(){S.mutated=true;S.mutateUnlocked=true;S.ultimatePower="MADNESS";setAura(0x8b5cf6,2.2);startTransformation(0x8b5cf6,"MADNESS AWAKENED",3.8);refresh()}
+function mutate(){
+ sfx("mutate");
+ if(!S.mutateUnlocked){msg("🔒 Defeat a boss first to unlock MUTATE.");return}
+ if(S.madness){showCinematic("MADNESS","Your final power is active.",0x8b5cf6,1200);return}
+ S.mutated=true;S.selected=-1;S.flying=false;setAura(0xff3030,1.8);
+ startTransformation(0xff3030,"MUTATION • "+S.ultimatePower.toUpperCase(),3.4);
+ showCinematic("MUTATION","Your old powers merge into "+S.ultimatePower,0xff3030,2400);burst(0xff3030,player.position,90);refresh();saveGame(true);
+}
+
+function updateEnemyBar(e){
+
+    const b =
+        e.userData.bar;
+
+    const ctx =
+        b.ctx;
+
+
+    ctx.clearRect(
+        0,
+        0,
+        256,
+        24
+    );
+
+
+    ctx.fillStyle =
+        "#20252c";
+
+    ctx.fillRect(
+        0,
+        0,
+        256,
+        24
+    );
+
+
+    ctx.fillStyle =
+        "#3cda70";
+
+    ctx.fillRect(
+        3,
+        3,
+        250 *
+        Math.max(
+            0,
+            e.userData.hp
+        ) /
+        e.userData.max,
+        18
+    );
+
+
+    b.tex.needsUpdate = true;
+}
+
+
+/* =========================
+   VEHICLES
+========================= */
+
+const vehicles=[];
+
+
+function vehicle(
+    name,
+    x,
+    z,
+    color
+){
+
+    const g =
+        new THREE.Group();
+
+
+    box(
+        3.5,
+        1.05,
+        5.6,
+        new THREE.MeshStandardMaterial({
+            color,
+            roughness:.38,
+            metalness:.25
+        }),
+        0,
+        1.05,
+        0,
+        g
+    );
+
+
+    box(
+        2.7,
+        1.2,
+        2.6,
+        M.glass,
+        0,
+        2,
+        -.3,
+        g
+    );
+
+
+    const wheelMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x151515,
+            roughness:.9
+        });
+
+
+    [
+
+        [-1.75,.55,-1.8],
+        [1.75,.55,-1.8],
+        [-1.75,.55,1.8],
+        [1.75,.55,1.8]
+
+    ].forEach(
+        p=>{
+
+            const w =
+                new THREE.Mesh(
+                    new THREE.CylinderGeometry(
+                        .52,
+                        .52,
+                        .38,
+                        16
+                    ),
+                    wheelMaterial
+                );
+
+
+            w.rotation.z =
+                Math.PI/2;
+
+            w.position.set(
+                ...p
+            );
+
+            w.castShadow=false;
+
+            g.add(w);
+
+        }
+    );
+
+
+    g.position.set(
+        x,
+        0,
+        z
+    );
+
+
+    g.userData = {
+
+        name,
+        driver:null,
+        speed:0,
+        homeX:x,
+        homeZ:z
+
+    };
+
+
+    scene.add(g);
+    addCircleCollider(x,z,3.0,g,"vehicle");
+
+    label(
+        name,
+        g,
+        4.2
+    );
+
+
+    vehicles.push(g);
+
+}
+
+
+vehicle(
+    "Blue Sports Car",
+    -15,
+    -15,
+    0x2673d0
+);
+
+vehicle(
+    "Red Sports Car",
+    15,
+    -15,
+    0xc73737
+);
+
+vehicle(
+    "Police Car",
+    -15,
+    15,
+    0xececec
+);
+
+vehicle(
+    "Green Car",
+    15,
+    15,
+    0x39a34d
+);
+
+vehicle(
+    "Black Car",
+    45,
+    -45,
+    0x151515
+);
+
+vehicle(
+    "Orange Car",
+    -45,
+    -45,
+    0xe47725
+);
+
+vehicle(
+    "Purple Car",
+    45,
+    45,
+    0x8244c6
+);
+
+vehicle(
+    "White Car",
+    -45,
+    45,
+    0xe7e7e7
+);
+
+vehicle(
+    "Taxi",
+    135,
+    0,
+    0xe1bd25
+);
+
+vehicle(
+    "Truck",
+    -135,
+    0,
+    0x6e7883
+);
+
+
+/* =========================
+   CRYSTALS
+========================= */
+
+const crystals=[];
+
+
+for(
+    let i=0;
+    i<40;
+    i++
+){
+
+    const a =
+        i/40*Math.PI*2;
+
+    const r =
+        70+(i%8)*8;
+
+
+    const c =
+        new THREE.Mesh(
+            new THREE.OctahedronGeometry(.7),
+            new THREE.MeshStandardMaterial({
+
+                color:0x32dfff,
+
+                emissive:0x0a78aa,
+
+                emissiveIntensity:1,
+
+                metalness:.25,
+
+                roughness:.25
+
+            })
+        );
+
+
+    c.position.set(
+        Math.cos(a)*r,
+        1,
+        Math.sin(a)*r
+    );
+
+
+    c.userData.id =
+        "crystal"+i;
+
+
+    c.castShadow = false;
+
+    scene.add(c);
+
+    crystals.push(c);
+
+}
+
+
+/* =========================
+   EFFECTS
+========================= */
+
+const effects=[];
+
+
+function effectRing(
+    color,
+    pos,
+    size=1
+){
+
+    const r =
+        new THREE.Mesh(
+            new THREE.RingGeometry(
+                .4,
+                .8,
+                48
+            ),
+            new THREE.MeshBasicMaterial({
+
+                color,
+
+                transparent:true,
+
+                opacity:.9,
+
+                side:THREE.DoubleSide
+
+            })
+        );
+
+
+    r.rotation.x =
+        -Math.PI/2;
+
+
+    r.position.copy(pos);
+
+    r.position.y =
+        .12;
+
+
+    r.userData = {
+
+        life:.8,
+
+        max:.8,
+
+        size
+
+    };
+
+
+    scene.add(r);
+
+    effects.push(r);
+
+}
+
+
+function burst(
+    color,
+    pos,
+    count=18
+){
+
+    for(
+        let i=0;
+        i<count;
+        i++
+    ){
+
+        const s =
+            new THREE.Mesh(
+                new THREE.SphereGeometry(
+                    .11,
+                    8,
+                    8
+                ),
+                new THREE.MeshBasicMaterial({
+                    color,
+                    transparent:true
+                })
+            );
+
+
+        s.position.copy(pos);
+
+
+        s.userData = {
+
+            life:1,
+
+            v:
+                new THREE.Vector3(
+                    (Math.random()-.5)*9,
+                    Math.random()*8,
+                    (Math.random()-.5)*9
+                )
+
+        };
+
+
+        scene.add(s);
+
+        effects.push(s);
+
+    }
+
+}
+
+
+/* =========================
+   MESSAGE
+========================= */
+
+function msg(
+    text,
+    seconds=2.4
+){
+
+    ui.msg.textContent =
+        text;
+
+    ui.msg.style.display =
+        "block";
+
+    msg.time =
+        seconds;
+
+}
+
+
+msg.time=0;
+
+
+/* =========================
+   HUD
+========================= */
+
+function refresh(){
+
+    ui.level.textContent =
+        S.level;
+
+    ui.xp.textContent =
+        S.xp;
+
+    ui.need.textContent =
+        S.need;
+
+    ui.hp.textContent =
+        Math.max(
+            0,
+            Math.floor(S.hp)
+        );
+
+    ui.maxhp.textContent =
+        S.maxhp;
+
+
+    ui.hpbar.style.width =
+        Math.max(
+            0,
+            S.hp/S.maxhp*100
+        )+"%";
+
+
+    ui.coins.textContent =
+        S.coins;
+
+    ui.crystals.textContent =
+        S.crystals;
+
+
+    ui.power.textContent =
+        S.selected>=0
+        ? icons[S.selected]+" "+names[S.selected]
+        : "None";
+
+
+    ui.mode.textContent =
+        S.inVehicle
+        ? "Driving"
+        : S.flying
+        ? "Flying"
+        : S.mutated
+        ? (S.madness ? "MADNESS" : "MUTATED")
+        : "Walking";
+    if(ui.mutatePanel) ui.mutatePanel.style.display=(S.mutateUnlocked||S.bossesUnlocked)?"block":"none";
+    if(ui.mutateBtn) ui.mutateBtn.disabled=!S.mutateUnlocked;
+
+
+    updateQuest();
+    updateTaskArrow();
+
+    updatePowers();
+
+}
+
+
+/* =========================
+   XP
+========================= */
+
+function xp(n){
+
+    S.xp += n;
+
+
+    while(
+        S.xp >= S.need
+    ){
+
+        S.xp -=
+            S.need;
+
+        S.level++;
+
+        S.need =
+            Math.floor(
+                S.need*1.3
+            );
+
+        S.maxhp += 15;
+
+        S.hp =
+            S.maxhp;
+
+        msg(
+            "LEVEL UP! Level "+
+            S.level
+        );
+
+    }
+
+
+    refresh();
+
+}
+
+
+/* =========================
+   QUESTS
+========================= */
+
+function getTaskTarget(){
+    if(S.bossesUnlocked && S.currentBoss>=0){const boss=nearestBoss();if(boss)return {obj:boss,name:boss.userData.name||"Boss",kind:"boss"};}
+    const findNpc=name=>npcs.find(n=>n.userData&&n.userData.name===name);
+    const nearestFrom=(list,filter)=>{let best=null,dist=Infinity;list.forEach(o=>{if(!o||!o.visible)return;if(filter&&!filter(o))return;const d=player.position.distanceTo(o.position);if(d<dist){dist=d;best=o;}});return best;};
+    switch(S.quest){
+        case 0:{const n=findNpc("Elder Arin");return n?{obj:n,name:"Elder Arin",kind:"npc"}:null;}
+        case 1:{const e=nearestFrom(enemies,e=>!e.userData.dead&&!e.userData.police);return e?{obj:e,name:"Shadow Enemy",kind:"enemy"}:null;}
+        case 2:{const c=nearestFrom(crystals,c=>!S.collected.has(c.userData.id));return c?{obj:c,name:"Crystal",kind:"crystal"}:null;}
+        case 3:{const n=nearestFrom(npcs,n=>n.userData.name!=="Elder Arin"&&n.userData.name!=="Guardian Ryo");return n?{obj:n,name:n.userData.name||"Villager",kind:"npc"}:null;}
+        case 4:{const e=nearestFrom(enemies,e=>!e.userData.dead&&!e.userData.police);return e?{obj:e,name:"Shadow Enemy",kind:"enemy"}:null;}
+        case 5:return null;
+        case 6:{const e=nearestFrom(enemies,e=>!e.userData.dead&&e.userData.police);return e?{obj:e,name:"Police Officer",kind:"enemy"}:null;}
+        case 7:case 8:case 9:return null;
+        case 10:{const n=findNpc("Guardian Ryo");return n?{obj:n,name:"Guardian Ryo",kind:"npc"}:null;}
+        default:return null;
+    }
+}
+
+function updateTaskArrow(force=false){
+    if(!ui.taskArrow||!S.started||S.paused||!S.taskArrowEnabled){if(ui.taskArrow)ui.taskArrow.style.display="none";return;}
+    const target=getTaskTarget();
+    if(!target||!target.obj||!target.obj.visible){ui.taskArrow.style.display="none";return;}
+    const dx=target.obj.position.x-player.position.x,dz=target.obj.position.z-player.position.z;
+    const distance=Math.hypot(dx,dz),angle=Math.atan2(dx,dz)-player.rotation.y;
+    const deg=((angle*180/Math.PI)+360)%360;
+    const dirs=["⬆️","↗️","➡️","↘️","⬇️","↙️","⬅️","↖️"],index=Math.round(deg/45)%8;
+    ui.taskArrow.style.display="block";
+    ui.taskArrow.classList.toggle("boss",target.kind==="boss");
+    ui.taskArrow.classList.toggle("near",distance<12 && target.kind!=="boss");
+    ui.taskArrowTitle.textContent=target.kind==="boss"?"⚔ BOSS OBJECTIVE":"📍 CURRENT TASK";
+    ui.taskArrowIcon.textContent=dirs[index];
+    ui.taskArrowIcon.style.transform=`rotate(${deg-index*45}deg) scale(${distance<12?1.12:1})`;
+    ui.taskArrowInfo.textContent=target.name+" • "+Math.round(distance)+" m";
+    if(force) ui.taskArrow.style.opacity="1";
+}
+
+
+function updateQuest(){
+    const q=[
+        "Talk to Elder Arin to begin your journey.",
+        "Defeat 3 Shadow Enemies ("+Math.min(3,S.shadowDefeated)+"/3).",
+        "Collect 5 crystals ("+Math.min(5,S.crystals)+"/5).",
+        "Talk to 3 villagers ("+Math.min(3,S.talks)+"/3).",
+        "Defeat 5 more Shadow Enemies ("+Math.min(5,Math.max(0,S.shadowDefeated-3))+"/5).",
+        "Reach Level 4 to awaken the next emotion.",
+        "Defeat 15 Police Officers to unlock FLIGHT ("+S.policeDefeated+"/15).",
+        "FLIGHT UNLOCKED! Reach Level 6 to awaken SURPRISE.",
+        "Reach Level 8 to awaken DISGUST.",
+        "Reach Level 10 to awaken LOVE.",
+        "All emotion powers awakened! Talk to Guardian Ryo to reveal the boss location."
+    ];
+    ui.questText.textContent=q[Math.min(S.quest,q.length-1)];
+}
+
+
+function updatePowers(){
+
+    for(
+        let i=0;
+        i<9;
+        i++
+    ){
+
+        const b =
+            $("p"+(i+1));
+
+
+        if(
+            S.unlocked.has(i)
+        ){
+
+            b.classList.remove(
+                "locked"
+            );
+
+            b.textContent =
+                icons[i]+
+                " "+
+                names[i];
+
+        }else{
+
+            b.classList.add(
+                "locked"
+            );
+
+            b.textContent =
+                "🔒 "+
+                names[i];
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   UNLOCK POWERS
+========================= */
+
+function unlock(i){
+
+    S.unlocked.add(i);
+
+
+    if(
+        S.selected<0
+    ){
+
+        S.selected=i;
+
+    }
+
+
+    msg(
+        names[i]+
+        " POWER UNLOCKED!"
+    );
+
+}
+
+
+function progress(){
+    const previousQuest=S.quest;
+    if(S.quest===1 && S.shadowDefeated>=3){ S.quest=2; unlock(0); xp(100); msg("CALM earned!"); }
+    if(S.quest===2 && S.crystals>=5){ S.quest=3; unlock(1); xp(130); msg("ANGER earned!"); }
+    if(S.quest===3 && S.talks>=3){ S.quest=4; unlock(2); xp(150); msg("JOY earned!"); }
+    if(S.quest===4 && S.shadowDefeated>=8){ S.quest=5; unlock(3); xp(180); msg("SADNESS earned!"); }
+    if(S.quest===5 && S.level>=4){ S.quest=6; unlock(4); xp(220); msg("FEAR earned!"); }
+    if(S.quest===6 && S.policeDefeated>=15){ S.quest=7; unlock(8); xp(700); msg("FLIGHT EARNED! Press F!"); }
+    if(S.quest===7 && S.level>=6){ S.quest=8; unlock(5); xp(300); msg("SURPRISE earned!"); }
+    if(S.quest===8 && S.level>=8){ S.quest=9; unlock(6); xp(400); msg("DISGUST earned!"); }
+    if(S.quest===9 && S.level>=10){ S.quest=10; unlock(7); xp(500); msg("LOVE earned!"); }
+    refresh();
+    if(S.quest!==previousQuest && playable.inEnv && typeof ytgame!=="undefined" && ytgame.engagement?.sendScore){ try{ ytgame.engagement.sendScore({value:Math.max(0,S.quest)}); }catch(err){ console.warn("Playables score",err); } }
+}
+
+
+/* =========================
+   SELECT POWER
+========================= */
+
+function selectPower(i){
+
+    if(
+        !S.unlocked.has(i)
+    ){
+
+        msg(
+            "Locked — complete the task for this emotion."
+        );
+
+        return;
+
+    }
+
+
+    S.selected=i;
+
+    refresh();
+
+    msg(
+        names[i]+" selected"
+    );
+
+}
+
+
+/* =========================
+   POWER SYSTEM
+========================= */
+
+function power(){
+
+    if(
+        S.selected<0 ||
+        S.inVehicle ||
+        S.paused ||
+        S.mutated
+    ){
+        return;
+    }
+
+
+    /* FLIGHT */
+
+    if(
+        S.selected===8
+    ){
+
+        if(
+            !S.flying
+        ){
+
+            S.flying=true;
+
+            msg(
+                "FLIGHT ON — W/S rises/falls, A/D steer"
+            );
+
+            burst(
+                0x8de8ff,
+                player.position,
+                28
+            );
+
+        }else{
+
+            S.flying=false;
+
+            player.position.y=0;
+
+            msg(
+                "Landing"
+            );
+
+        }
+
+        return;
+
+    }
+
+
+    const p =
+        S.selected;
+
+    const c =
+        colors[p];
+
+
+    effectRing(
+        c,
+        player.position
+    );
+
+
+    if(p===0){
+
+        S.hp =
+            Math.min(
+                S.maxhp,
+                S.hp+30
+            );
+
+        P.la.rotation.x =
+            -1.1;
+
+        P.ra.rotation.x =
+            -1.1;
+
+        burst(
+            c,
+            player.position,
+            15
+        );
+
+        msg(
+            "Calm Aura — healing"
+        );
+
+    }
+
+
+    if(p===1){
+
+        P.ra.rotation.x =
+            -1.8;
+
+        damageNearby(
+            38,
+            10
+        );
+
+        burst(
+            c,
+            player.position,
+            24
+        );
+
+        msg(
+            "Anger Strike!"
+        );
+
+    }
+
+
+    if(p===2){
+
+        player.rotation.y +=
+            Math.PI*1.5;
+
+        S.coins += 15;
+
+        burst(
+            c,
+            player.position,
+            22
+        );
+
+        xp(35);
+
+        msg(
+            "Joy Spin! Coins +15"
+        );
+
+    }
+
+
+    if(p===3){
+
+        S.hp =
+            Math.min(
+                S.maxhp,
+                S.hp+15
+            );
+
+        damageNearby(
+            18,
+            13
+        );
+
+        P.la.rotation.z =
+            1;
+
+        P.ra.rotation.z =
+            -1;
+
+        burst(
+            c,
+            player.position,
+            18
+        );
+
+        msg(
+            "Sadness Wave"
+        );
+
+    }
+
+
+    if(p===4){
+
+        damageNearby(
+            25,
+            16
+        );
+
+        burst(
+            c,
+            player.position,
+            26
+        );
+
+        msg(
+            "Fear Shockwave"
+        );
+
+    }
+
+
+    if(p===5){
+
+        damageNearby(
+            48,
+            20
+        );
+
+        burst(
+            c,
+            player.position,
+            35
+        );
+
+        msg(
+            "Surprise Blast!"
+        );
+
+    }
+
+
+    if(p===6){
+
+        S.hp =
+            Math.min(
+                S.maxhp,
+                S.hp+10
+            );
+
+        damageNearby(
+            22,
+            14
+        );
+
+        burst(
+            c,
+            player.position,
+            20
+        );
+
+        msg(
+            "Disgust Pulse"
+        );
+
+    }
+
+
+    if(p===7){
+
+        S.hp =
+            Math.min(
+                S.maxhp,
+                S.hp+45
+            );
+
+        xp(45);
+
+        burst(
+            c,
+            player.position,
+            32
+        );
+
+        msg(
+            "Love Blessing"
+        );
+
+    }
+
+
+    refresh();
+
+}
+
+
+function damageNearby(
+    dmg,
+    radius
+){
+
+    enemies.forEach(
+        e=>{
+
+            if(
+                !e.userData.dead &&
+                player.position.distanceTo(
+                    e.position
+                )<radius
+            ){
+
+                hitEnemy(
+                    e,
+                    dmg
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================
+   PLAYER ATTACK
+========================= */
+
+function attack(){
+
+    sfx("hit");
+
+    if(
+        !S.started ||
+        S.paused ||
+        S.inVehicle
+    ){
+        return;
+    }
+
+
+    let target=null;
+
+    let best=5;
+
+
+    enemies.forEach(
+        e=>{
+
+            if(
+                !e.userData.dead
+            ){
+
+                const d =
+                    player.position.distanceTo(
+                        e.position
+                    );
+
+
+                if(
+                    d<best
+                ){
+
+                    best=d;
+
+                    target=e;
+
+                }
+
+            }
+
+        }
+    );
+
+
+    const bt=nearestBoss();
+    if(bt && player.position.distanceTo(bt.position)<best) target=bt;
+    P.ra.rotation.x=-1.5;
+    if(target){
+        if(target.userData && target.userData.max>=400){
+            target.userData.hp-=28+S.powerLevel*6;updateBossBar(target);burst(target.userData.color,target.position,12);
+            if(target.userData.hp<=0)bossDefeat(target);
+        }else hitEnemy(target,28+S.powerLevel*6);
+    }
+
+
+    effectRing(
+        0x65c9ff,
+        player.position,
+        .5
+    );
+
+}
+
+
+/* =========================
+   DAMAGE ENEMY
+========================= */
+
+function hitEnemy(
+    e,
+    dmg
+){
+
+    if(
+        e.userData.dead
+    ){
+        return;
+    }
+
+
+    e.userData.hp -=
+        dmg;
+
+
+    updateEnemyBar(e);
+
+
+    if(
+        e.userData.hp<=0
+    ){
+
+        e.userData.dead=true;
+
+        e.visible=false;
+        S.defeated.add(e.userData.id);
+
+
+        S.coins +=
+            e.userData.police
+            ? 20
+            : 5;
+
+
+        S.enemiesDefeated++;
+
+        if(!e.userData.police){
+            S.shadowDefeated++;
+        }
+
+        if(
+            e.userData.police
+        ){
+
+            S.policeDefeated++;
+
+        }
+
+
+        burst(
+            e.userData.police
+            ? 0x62aaff
+            : 0xff4050,
+            e.position,
+            22
+        );
+
+
+        xp(
+            e.userData.police
+            ? 70
+            : 35
+        );
+
+
+        progress();
+
+    }
+
+}
+
+
+/* =========================
+   NEAREST OBJECT
+========================= */
+
+function nearest(){
+
+    let best=4.5;
+
+    let obj=null;
+
+    let type="";
+
+
+    npcs.forEach(
+        n=>{
+
+            const d =
+                player.position.distanceTo(
+                    n.position
+                );
+
+
+            if(
+                d<best
+            ){
+
+                best=d;
+
+                obj=n;
+
+                type="npc";
+
+            }
+
+        }
+    );
+
+
+    vehicles.forEach(
+        v=>{
+
+            const d =
+                player.position.distanceTo(
+                    v.position
+                );
+
+
+            if(
+                d<best
+            ){
+
+                best=d;
+
+                obj=v;
+
+                type="vehicle";
+
+            }
+
+        }
+    );
+
+
+    crystals.forEach(
+        c=>{
+
+            if(
+                c.visible
+            ){
+
+                const d =
+                    player.position.distanceTo(
+                        c.position
+                    );
+
+
+                if(
+                    d<best
+                ){
+
+                    best=d;
+
+                    obj=c;
+
+                    type="crystal";
+
+                }
+
+            }
+
+        }
+    );
+
+
+    return obj
+        ? {obj,type}
+        : null;
+
+}
+
+
+/* =========================
+   INTERACTION
+========================= */
+
+function interact(){
+
+    if(S.inVehicle){
+        exitVehicle();
+        return;
+    }
+
+    const n=nearest();
+
+
+    if(!n){
+
+        msg(
+            "Nothing nearby to interact with."
+        );
+
+        return;
+
+    }
+
+
+    if(
+        n.type==="vehicle"
+    ){
+
+        enterVehicle(
+            n.obj
+        );
+
+        return;
+
+    }
+
+
+    if(
+        n.type==="crystal"
+    ){
+
+        collectCrystal(
+            n.obj
+        );
+
+        return;
+
+    }
+
+
+    talk(
+        n.obj
+    );
+
+}
+
+
+/* =========================
+   NPC TALK
+========================= */
+
+function talk(n){
+
+    if(
+        n.userData.type==="merchant"
+    ){
+
+        openShop();
+
+        return;
+
+    }
+
+
+    ui.dialogName.textContent =
+        n.userData.name;
+
+
+    if(
+        n.userData.type==="elder"
+    ){
+
+        if(
+            S.quest===0
+        ){
+
+            S.quest=1;
+
+            ui.dialogText.textContent =
+                "Your powers are not free. Defeat 3 Shadow Enemies to earn your first emotion.";
+
+            progress();
+
+        }else{
+
+            ui.dialogText.textContent =
+                "Keep completing tasks. Every emotion must be earned.";
+
+        }
+
+    }
+
+    else if(
+        n.userData.type==="guardian"
+    ){
+
+        ui.dialogText.textContent =
+            "The Crystal Temple holds energy from every emotion. Explore the roads and mountains.";
+
+    }
+
+    else{
+
+        S.talks++;
+
+        ui.dialogText.textContent =
+            "Hello! There are many secrets hidden around this huge world.";
+
+        progress();
+
+    }
+
+
+    ui.dialog.style.display =
+        "flex";
+
+}
+
+
+function closeDialog(){
+
+    ui.dialog.style.display =
+        "none";
+
+}
+
+
+/* =========================
+   CRYSTAL
+========================= */
+
+function collectCrystal(c){
+    sfx("collect");
+
+    if(!c || !c.visible || S.collected.has(c.userData.id)) return;
+    c.visible=false;
+
+    S.collected.add(
+        c.userData.id
+    );
+
+    S.crystals++;
+
+    S.coins+=3;
+
+    xp(18);
+
+    progress();
+
+    msg(
+        "Crystal collected!"
+    );
+
+}
+
+
+/* =========================
+   SHOP
+========================= */
+
+function openShop(){
+
+    ui.shop.style.display =
+        "flex";
+
+    updateShop();
+
+}
+
+
+function closeShop(){
+
+    ui.shop.style.display =
+        "none";
+
+}
+
+
+function updateShop(){
+
+    $("healBtn").textContent =
+        "Health Potion — 15 coins";
+
+    $("speedBtn").textContent =
+        "Speed Upgrade — "+
+        30*S.speedLevel+
+        " coins";
+
+    $("powerBtn").textContent =
+        "Power Upgrade — "+
+        40*S.powerLevel+
+        " coins";
+
+}
+
+
+function buyHeal(){
+
+    if(
+        S.coins>=15
+    ){
+
+        S.coins-=15;
+
+        S.hp=S.maxhp;
+
+        msg(
+            "Health restored"
+        );
+
+        refresh();
+
+    }else{
+
+        msg(
+            "Not enough coins"
+        );
+
+    }
+
+}
+
+
+function buySpeed(){
+
+    const price =
+        30*S.speedLevel;
+
+
+    if(
+        S.coins>=price
+    ){
+
+        S.coins-=price;
+
+        S.speedLevel++;
+
+        msg(
+            "Speed upgraded"
+        );
+
+        refresh();
+
+    }else{
+
+        msg(
+            "Not enough coins"
+        );
+
+    }
+
+}
+
+
+function buyPowerUpgrade(){
+
+    const price =
+        40*S.powerLevel;
+
+
+    if(
+        S.coins>=price
+    ){
+
+        S.coins-=price;
+
+        S.powerLevel++;
+
+        msg(
+            "Power upgraded"
+        );
+
+        refresh();
+
+    }else{
+
+        msg(
+            "Not enough coins"
+        );
+
+    }
+
+}
+
+
+/* =========================
+   VEHICLE
+========================= */
+
+function enterVehicle(v){
+    sfx("power");
+
+    if(
+        v.userData.driver
+    ){
+
+        msg(
+            "Vehicle is occupied."
+        );
+
+        return;
+
+    }
+
+
+    v.userData.driver =
+        player;
+
+
+    S.inVehicle=true;
+
+    player.visible=false;
+
+
+    msg(
+        "Driving "+
+        v.userData.name+
+        " — WASD, E to exit"
+    );
+
+
+    refresh();
+
+}
+
+
+function exitVehicle(){
+    sfx("power");
+
+    const v =
+        vehicles.find(
+            x =>
+                x.userData.driver===player
+        );
+
+
+    if(!v){
+        return;
+    }
+
+
+    player.visible=true;
+
+
+    player.position.copy(v.position);
+    const exitOptions=[
+        [3.8,0],[-3.8,0],[0,3.8],[0,-3.8]
+    ];
+    let exited=false;
+    for(const [ox,oz] of exitOptions){
+        const ex=THREE.MathUtils.clamp(v.position.x+ox,-490,490);
+        const ez=THREE.MathUtils.clamp(v.position.z+oz,-490,490);
+        if(canOccupy(ex,ez,PLAYER_RADIUS,player)){
+            player.position.x=ex;
+            player.position.z=ez;
+            exited=true;
+            break;
+        }
+    }
+    if(!exited){
+        player.position.x=THREE.MathUtils.clamp(v.position.x,-490,490);
+        player.position.z=THREE.MathUtils.clamp(v.position.z,-490,490);
+    }
+    player.position.y=0;
+
+
+    v.userData.driver=null;
+
+    S.inVehicle=false;
+
+    refresh();
+
+}
+
+
+/* =========================
+   CONTROLS
+========================= */
+
+const keys={
+
+    w:false,
+    a:false,
+    s:false,
+    d:false,
+    shift:false
+
+};
+
+
+const mobile={
+
+    w:false,
+    a:false,
+    s:false,
+    d:false
+
+};
+
+
+let yaw=0;
+
+let pitch=.38;
+
+let dragging=false;
+
+let lastMX=0;
+
+let lastMY=0;
+
+
+/* camera mouse */
+
+renderer.domElement.addEventListener(
+    "pointerdown",
+    e=>{
+
+        if(
+            e.button===0
+        ){
+
+            dragging=true;
+
+            lastMX=e.clientX;
+
+            lastMY=e.clientY;
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "pointerup",
+    ()=>{
+        dragging=false;
+    }
+);
+
+
+window.addEventListener(
+    "pointermove",
+    e=>{
+
+        if(!dragging){
+            return;
+        }
+
+
+        yaw -=
+            (e.clientX-lastMX)*
+            .006;
+
+
+        pitch -=
+            (e.clientY-lastMY)*
+            .004;
+
+
+        pitch =
+            THREE.MathUtils.clamp(
+                pitch,
+                -.1,
+                1.05
+            );
+
+
+        lastMX=e.clientX;
+
+        lastMY=e.clientY;
+
+    }
+);
+
+
+/* keyboard */
+
+window.addEventListener(
+    "keydown",
+    e=>{
+
+        const k =
+            e.key.toLowerCase();
+
+
+        if(
+            k in keys
+        ){
+
+            keys[k]=true;
+
+        }
+
+
+        if(
+            k==="e"
+        ){
+
+            interact();
+
+        }
+
+
+        if(
+            k===" "
+        ){
+
+            attack();
+
+        }
+
+
+        if(
+            k==="escape"
+        ){
+
+            togglePause();
+
+        }
+
+
+        if(
+            k==="f" &&
+            S.unlocked.has(8)
+        ){
+
+            power();
+
+        }
+
+
+        if(
+            k>="1" &&
+            k<="9"
+        ){
+
+            selectPower(
+                +k-1
+            );
+
+        }
+
+    }
+);
+
+
+window.addEventListener(
+    "keyup",
+    e=>{
+
+        const k =
+            e.key.toLowerCase();
+
+
+        if(
+            k in keys
+        ){
+
+            keys[k]=false;
+
+        }
+
+    }
+);
+
+
+/* mobile */
+
+function hold(
+    id,
+    key
+){
+
+    const b =
+        $(id);
+
+
+    const on =
+        e=>{
+
+            e.preventDefault();
+
+            mobile[key]=true;
+
+        };
+
+
+    const off =
+        e=>{
+
+            e.preventDefault();
+
+            mobile[key]=false;
+
+        };
+
+
+    b.addEventListener(
+        "pointerdown",
+        on
+    );
+
+    b.addEventListener(
+        "pointerup",
+        off
+    );
+
+    b.addEventListener(
+        "pointercancel",
+        off
+    );
+
+    b.addEventListener(
+        "pointerleave",
+        off
+    );
+
+}
+
+
+hold("ml","a");
+hold("mf","w");
+hold("mr","d");
+hold("mb","s");
+
+function clearMobileKeys(){
+    mobile.w=false; mobile.a=false; mobile.s=false; mobile.d=false;
+}
+window.addEventListener("pointerup",clearMobileKeys);
+window.addEventListener("pointercancel",clearMobileKeys);
+
+$("me").onclick =
+    interact;
+
+$("ma").onclick =
+    attack;
+
+$("mf1").onclick =
+    ()=>{
+
+        if(
+            S.unlocked.has(8)
+        ){
+
+            power();
+
+        }
+
+    };
+
+
+if(
+    /Android|iPhone|iPad|Mobile/i
+    .test(navigator.userAgent)
+){
+
+    $("mobile").style.display =
+        "flex";
+
+}
+
+
+/* =========================
+   CHARACTER ANIMATION + VISUAL POLISH
+========================= */
+
+let animationClock = 0;
+
+function animateHumanoid(g, moving, dt, phaseOffset=0){
+    const p = g?.userData?.parts;
+    if(!p) return;
+
+    const t = animationClock * (moving ? 9 : 2.2) + phaseOffset;
+    const swing = moving ? Math.sin(t) * 0.62 : Math.sin(t) * 0.035;
+    const bob = moving ? Math.abs(Math.sin(t)) * 0.045 : Math.sin(t) * 0.012;
+
+    p.ll.rotation.x = swing;
+    p.rl.rotation.x = -swing;
+    p.la.rotation.x = -swing * 0.72;
+    p.ra.rotation.x = swing * 0.72;
+
+    if(p.fl) p.fl.rotation.x = -swing * 0.18;
+    if(p.fr) p.fr.rotation.x = swing * 0.18;
+
+    g.position.y = g.userData.baseY ?? 0;
+    g.position.y += bob;
+}
+
+function animateCharacters(dt){
+    animationClock += dt;
+    const movingPlayer=!S.inVehicle&&!S.flying&&(keys.w||keys.a||keys.s||keys.d||mobile.w||mobile.a||mobile.s||mobile.d);
+    animateHumanoid(player,movingPlayer,dt);
+    const maxDist=isMobile?28:42, maxDist2=maxDist*maxDist;
+    enemies.forEach((e,i)=>{
+        if(e.userData.dead || e.position.distanceToSquared(player.position)>maxDist2) return;
+        animateHumanoid(e,e.position.distanceToSquared(player.position)>6.25,dt,i*.7);
+    });
+    npcs.forEach((n,i)=>{
+        if(n.position.distanceToSquared(player.position)>maxDist2) return;
+        animateHumanoid(n,true,dt,i*.9);
+    });
+}
+
+
+function animateVehicles(dt){
+    vehicles.forEach(v=>{
+        if(v.userData.driver===player) return;
+        const spin = animationClock * 1.2;
+        if(v.userData.wheels){
+            v.userData.wheels.forEach((w,i)=>{ w.rotation.x = spin + i * .2; });
+        }
+    });
+}
+
+
+/* =========================
+   MOVEMENT
+========================= */
+
+function movement(dt){
+
+    if(performance.now()-lastColliderRebuild>120){ rebuildDynamicColliders(); lastColliderRebuild=performance.now(); }
+
+    let sx =
+        (keys.d?1:0) -
+        (keys.a?1:0) +
+        (mobile.d?1:0) -
+        (mobile.a?1:0);
+
+
+    let sz =
+        (keys.w?1:0) -
+        (keys.s?1:0) +
+        (mobile.w?1:0) -
+        (mobile.s?1:0);
+
+
+    const len =
+        Math.hypot(
+            sx,
+            sz
+        );
+
+
+    if(len){
+
+        sx/=len;
+
+        sz/=len;
+
+    }
+
+
+    /* vehicle */
+
+    if(
+        S.inVehicle
+    ){
+
+        const v =
+            vehicles.find(
+                x =>
+                    x.userData.driver===player
+            );
+
+
+        if(!v){
+            return;
+        }
+
+
+        if(len){
+
+            const speed =
+                (
+                    keys.shift
+                    ? 25
+                    : 14
+                )*dt;
+
+
+            const forward =
+                new THREE.Vector3(
+                    Math.sin(yaw),
+                    0,
+                    Math.cos(yaw)
+                );
+
+
+            const right =
+                new THREE.Vector3(
+                    forward.z,
+                    0,
+                    -forward.x
+                );
+
+
+            const dir =
+                forward
+                .clone()
+                .multiplyScalar(sz)
+                .add(
+                    right
+                    .multiplyScalar(sx)
+                )
+                .normalize();
+
+
+            /* Vehicles collide with houses, trees and other vehicles/NPCs. */
+            moveWithCollision(v,dir.x*speed,dir.z*speed,3.0,v);
+            v.position.x=THREE.MathUtils.clamp(v.position.x,-490,490);
+            v.position.z=THREE.MathUtils.clamp(v.position.z,-490,490);
+
+
+            v.rotation.y =
+                Math.atan2(
+                    dir.x,
+                    dir.z
+                );
+
+
+            player.position.copy(
+                v.position
+            );
+
+        }
+
+
+        return;
+
+    }
+
+
+    /* flight */
+
+    const speed =
+        (
+            keys.shift
+            ? 13
+            : 7.5
+        )*
+        (
+            1+
+            S.speedLevel*.08
+        );
+
+
+    if(
+        S.flying
+    ){
+
+        if(
+            keys.w ||
+            mobile.w
+        ){
+
+            player.position.y +=
+                speed*dt;
+
+        }
+
+
+        if(
+            keys.s ||
+            mobile.s
+        ){
+
+            player.position.y -=
+                speed*dt;
+
+        }
+
+
+        player.position.y =
+            THREE.MathUtils.clamp(
+                player.position.y,
+                2,
+                55
+            );
+
+    }else{
+
+        player.position.y=0;
+
+    }
+
+
+    /* normal movement */
+
+    if(len){
+
+        const forward =
+            new THREE.Vector3(
+                Math.sin(yaw),
+                0,
+                Math.cos(yaw)
+            );
+
+
+        const right =
+            new THREE.Vector3(
+                forward.z,
+                0,
+                -forward.x
+            );
+
+
+        const dir =
+            forward
+            .multiplyScalar(sz)
+            .add(
+                right
+                .multiplyScalar(sx)
+            )
+            .normalize();
+
+
+        /* Player collision: buildings, trees, vehicles and characters are solid. */
+        moveWithCollision(
+            player,
+            dir.x*speed*dt,
+            dir.z*speed*dt,
+            PLAYER_RADIUS,
+            player
+        );
+
+
+        const target =
+            Math.atan2(
+                dir.x,
+                dir.z
+            );
+
+
+        player.rotation.y =
+            lerpAngle(
+                player.rotation.y,
+                target,
+                Math.min(
+                    1,
+                    dt*12
+                )
+            );
+
+
+        const walk =
+            performance.now()*
+            .012*
+            speed;
+
+
+        P.ll.rotation.x =
+            Math.sin(walk)*.62;
+
+        P.rl.rotation.x =
+            -P.ll.rotation.x;
+
+        P.la.rotation.x =
+            -P.ll.rotation.x*.65;
+
+        P.ra.rotation.x =
+            -P.rl.rotation.x*.65;
+
+    }else{
+
+        P.ll.rotation.x*=.82;
+
+        P.rl.rotation.x*=.82;
+
+        P.la.rotation.x*=.82;
+
+        P.ra.rotation.x*=.82;
+
+    }
+
+
+    player.position.x =
+        THREE.MathUtils.clamp(
+            player.position.x,
+            -490,
+            490
+        );
+
+
+    player.position.z =
+        THREE.MathUtils.clamp(
+            player.position.z,
+            -490,
+            490
+        );
+
+}
+
+
+function lerpAngle(
+    a,
+    b,
+    t
+){
+
+    let d =
+        (b-a+Math.PI) %
+        (Math.PI*2) -
+        Math.PI;
+
+
+    return a+d*t;
+
+}
+
+
+/* =========================
+   ENEMY AI
+========================= */
+
+function enemiesUpdate(dt){
+
+    enemies.forEach(
+        e=>{
+
+            if(
+                e.userData.dead
+            ){
+                return;
+            }
+
+
+            const d =
+                e.position.distanceTo(
+                    player.position
+                );
+
+
+            if(
+                d<32 &&
+                !S.inVehicle &&
+                !S.flying
+            ){
+
+                if(
+                    d>2.5
+                ){
+
+                    const dx =
+                        player.position.x -
+                        e.position.x;
+
+
+                    const dz =
+                        player.position.z -
+                        e.position.z;
+
+
+                    moveWithCollision(
+                        e,
+                        dx/d*2.2*dt,
+                        dz/d*2.2*dt,
+                        1.25,
+                        e
+                    );
+
+
+                    e.rotation.y =
+                        Math.atan2(
+                            dx,
+                            dz
+                        );
+
+
+                    const p =
+                        e.userData
+                        .parts;
+
+
+                    p.ll.rotation.x =
+                        Math.sin(
+                            performance.now()*.01
+                        )*.4;
+
+
+                    p.rl.rotation.x =
+                        -p.ll.rotation.x;
+
+                }
+
+                else{
+
+                    e.userData.attack -=
+                        dt;
+
+
+                    if(
+                        e.userData.attack<=0
+                    ){
+
+                        e.userData.attack =
+                            1.15;
+
+
+                        S.hp -=
+                            e.userData.police
+                            ? 8
+                            : 5;
+
+
+                        if(
+                            S.hp<=0
+                        ){
+
+                            S.hp =
+                                S.maxhp;
+
+
+                            player.position.set(
+                                0,
+                                0,
+                                25
+                            );
+
+
+                            msg(
+                                "Checkpoint reached — you returned to the village."
+                            );
+
+                        }
+
+
+                        refresh();
+
+                    }
+
+                }
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================
+   NPC MOVEMENT
+========================= */
+
+function npcsUpdate(dt){
+
+    npcs.forEach(
+        n=>{
+
+            n.userData.t +=
+                dt;
+
+
+            n.position.x =
+                n.userData.home.x +
+                Math.sin(
+                    n.userData.t*.3
+                )*1.3;
+
+
+            n.position.z =
+                n.userData.home.z +
+                Math.cos(
+                    n.userData.t*.27
+                )*1.3;
+
+        }
+    );
+
+    rebuildDynamicColliders();
+
+}
+
+
+/* =========================
+   EFFECT UPDATE
+========================= */
+
+function effectsUpdate(dt){
+
+    for(
+        let i=effects.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e =
+            effects[i];
+
+
+        e.userData.life -=
+            dt;
+
+
+        if(
+            e.userData.v
+        ){
+
+            e.position.addScaledVector(
+                e.userData.v,
+                dt
+            );
+
+
+            e.userData.v.y -=
+                10*dt;
+
+        }
+
+
+        if(
+            e.userData.size
+        ){
+
+            const q =
+                1+
+                (
+                    1-
+                    e.userData.life
+                )*
+                e.userData.size;
+
+
+            e.scale.setScalar(q);
+
+        }
+
+
+        if(
+            e.userData.life<=0
+        ){
+
+            scene.remove(e);
+
+            effects.splice(
+                i,
+                1
+            );
+
+        }
+
+    }
+
+}
+
+
+/* =========================
+   CAMERA
+========================= */
+
+function cameraUpdate(dt){
+
+    const target =
+        new THREE.Vector3(
+            player.position.x,
+            player.position.y+1.7,
+            player.position.z
+        );
+
+
+    const dist =
+        S.flying
+        ? 10
+        : 8.5;
+
+
+    const horiz =
+        Math.cos(pitch)*dist;
+
+
+    const desired =
+        new THREE.Vector3(
+
+            player.position.x -
+            Math.sin(yaw)*
+            horiz,
+
+            player.position.y +
+            Math.sin(pitch)*
+            dist+
+            3,
+
+            player.position.z -
+            Math.cos(yaw)*
+            horiz
+
+        );
+
+
+    camera.position.lerp(
+        desired,
+        1-Math.pow(
+            .0005,
+            dt
+        )
+    );
+
+
+    camera.lookAt(
+        target
+    );
+
+
+    const deg =
+        (
+            yaw %
+            (Math.PI*2)+
+            Math.PI*2
+        )%
+        (Math.PI*2)*
+        180/Math.PI;
+
+
+    const dirs=[
+        "N",
+        "NE",
+        "E",
+        "SE",
+        "S",
+        "SW",
+        "W",
+        "NW"
+    ];
+
+
+    ui.compass.textContent =
+        dirs[
+            Math.round(deg/45)%8
+        ];
+
+}
+
+
+/* =========================
+   MINIMAP
+========================= */
+
+function minimap(){
+
+    const c =
+        ui.map;
+
+    const x =
+        c.getContext("2d");
+
+    const w=145;
+
+
+    x.clearRect(
+        0,
+        0,
+        w,
+        w
+    );
+
+
+    x.fillStyle =
+        "#234b31";
+
+    x.fillRect(
+        0,
+        0,
+        w,
+        w
+    );
+
+
+    x.strokeStyle =
+        "#555";
+
+    x.lineWidth=2;
+
+
+    for(
+        let v=0;
+        v<7;
+        v++
+    ){
+
+        const p =
+            v*w/6;
+
+
+        x.beginPath();
+
+        x.moveTo(
+            p,
+            0
+        );
+
+        x.lineTo(
+            p,
+            w
+        );
+
+        x.moveTo(
+            0,
+            p
+        );
+
+        x.lineTo(
+            w,
+            p
+        );
+
+        x.stroke();
+
+    }
+
+
+    x.fillStyle =
+        "#444";
+
+
+    for(
+        let v=0;
+        v<7;
+        v++
+    ){
+
+        const p =
+            v*w/6;
+
+
+        x.fillRect(
+            p-2,
+            0,
+            4,
+            w
+        );
+
+
+        x.fillRect(
+            0,
+            p-2,
+            w,
+            4
+        );
+
+    }
+
+
+    function dot(
+        wx,
+        wz,
+        color,
+        size
+    ){
+
+        const px =
+            (wx+260)/
+            520*
+            w;
+
+
+        const pz =
+            (wz+260)/
+            520*
+            w;
+
+
+        x.fillStyle =
+            color;
+
+
+        x.beginPath();
+
+
+        x.arc(
+            px,
+            pz,
+            size,
+            0,
+            Math.PI*2
+        );
+
+
+        x.fill();
+
+    }
+
+
+    dot(
+        player.position.x,
+        player.position.z,
+        "#fff",
+        4
+    );
+
+
+    vehicles.forEach(
+        v=>
+            dot(
+                v.position.x,
+                v.position.z,
+                "#ffd43b",
+                2
+            )
+    );
+
+
+    npcs.forEach(
+        n=>
+            dot(
+                n.position.x,
+                n.position.z,
+                "#4db6ff",
+                2
+            )
+    );
+
+
+    enemies.forEach(
+        e=>{
+
+            if(
+                !e.userData.dead
+            ){
+
+                dot(
+                    e.position.x,
+                    e.position.z,
+                    "#ff4545",
+                    2
+                );
+
+            }
+
+        }
+    );
+
+}
+
+
+/* =========================
+   SAVE
+========================= */
+
+function buildSaveData(){
+    return { version:28, savedAt:Date.now(), ...S, unlocked:[...S.unlocked], defeated:[...S.defeated], collected:[...S.collected], bossDefeated:[...S.bossDefeated], player:{x:player.position.x,y:player.position.y,z:player.position.z,r:player.rotation.y,yaw,pitch} };
+}
+
+async function saveGame(silent=false){
+    const data=buildSaveData();
+    localStorage.setItem(V25_SAVE_KEY,JSON.stringify(data));
+    localStorage.setItem("emotionPowersV27",JSON.stringify(data));
+    localStorage.setItem("emotionPowersV24",JSON.stringify(data));
+    localStorage.setItem("emotionPowersV23",JSON.stringify(data));
+    localStorage.setItem("emotionPowersV22",JSON.stringify(data));
+    localStorage.setItem("emotionPowersV9",JSON.stringify(data));
+    await playableSave(data);
+    playableSendScore();
+    if(!silent) msg("Game saved.");
+    return true;
+}
+
+function resetGameState(){
+    S.level=1; S.xp=0; S.need=100; S.hp=100; S.maxhp=100;
+    S.coins=25; S.crystals=0; S.speedLevel=1; S.powerLevel=1;
+    S.quest=0; S.talks=0; S.enemiesDefeated=0; S.shadowDefeated=0; S.policeDefeated=0;
+    S.selected=-1; S.unlocked=new Set(); S.defeated=new Set(); S.collected=new Set(); S.bossDefeated=new Set();
+    S.mutateUnlocked=false;S.mutated=false;S.ultimatePower=null;S.bossesUnlocked=false;S.currentBoss=-1;S.madness=false;S.curseBroken=false;
+    S.started=false; S.paused=false; S.inVehicle=false; S.flying=false; S.mapEnabled=mapOn; S.dayNightEnabled=dayNightOn;
+    vehicles.forEach(v=>{ v.userData.driver=null; v.position.set(v.userData.homeX,v.position.y,v.userData.homeZ); v.rotation.y=0; });
+    enemies.forEach(e=>{
+        e.userData.dead=false;
+        e.visible=true;
+        e.userData.hp=e.userData.max||65;
+        updateEnemyBar(e);
+    });
+    crystals.forEach(c=>{ c.visible=true; });
+    npcs.forEach(n=>{ n.position.copy(n.userData.home); });
+    bosses.forEach(b=>{b.userData.dead=false;b.visible=true;b.userData.hp=b.userData.max;updateBossBar(b);addCircleCollider(b.position.x,b.position.z,2,b,"enemy");});
+    ui.mutateBtn.disabled=true;ui.mutatePower.textContent="Defeat a boss to unlock";ui.mutatePanel.style.display="none";ui.bossIndicator.style.display="none";
+    player.visible=true;
+    player.position.set(0,0,25);
+    player.rotation.y=0;
+    yaw=0; pitch=.38;
+    closeDialog();
+    closeShop();
+    ui.prompt.style.display="none";
+    ui.pause.style.display="none";
+    refresh();
+}
+
+function applySaveData(d){
+    if(!d || typeof d!=="object") return false;
+    for(const k of Object.keys(S)){ if(!["unlocked","defeated","collected"].includes(k) && d[k]!==undefined) S[k]=d[k]; }
+    S.unlocked=new Set(d.unlocked||[]);
+    S.defeated=new Set(d.defeated||[]);
+    S.collected=new Set(d.collected||[]);
+    S.bossDefeated=new Set(d.bossDefeated||[]);
+    if(d.player){
+        player.position.set(d.player.x??0,d.player.y??0,d.player.z??0);
+        player.rotation.y=d.player.r??0;
+        yaw=d.player.yaw??0;
+        pitch=d.player.pitch??.38;
+    }
+    S.inVehicle=false;
+    S.flying=false;
+    mapOn=S.mapEnabled!==false; dayNightOn=S.dayNightEnabled!==false;
+    player.visible=true;
+    vehicles.forEach(v=>{ v.userData.driver=null; v.position.set(v.userData.homeX,v.position.y,v.userData.homeZ); v.rotation.y=0; });
+    enemies.forEach(e=>{
+        if(S.defeated.has(e.userData.id)){ e.userData.dead=true; e.visible=false; }
+        else { e.userData.dead=false; e.visible=true; e.userData.hp=e.userData.max||65; updateEnemyBar(e); }
+    });
+    crystals.forEach(c=>{ c.visible=!S.collected.has(c.userData.id); });
+    bosses.forEach(b=>{if(S.bossDefeated.has(b.userData.id)){b.userData.dead=true;b.visible=false}else{b.userData.dead=false;b.visible=true;b.userData.hp=b.userData.max;updateBossBar(b)}});
+    if(S.mutated)setAura(S.madness?0x8b5cf6:0xff3030,S.madness?2.2:1.8);
+    ui.mutateBtn.disabled=!S.mutateUnlocked;ui.mutatePower.textContent=S.ultimatePower?S.ultimatePower+" unlocked":"Defeat a boss to unlock";
+    refresh();
+    return true;
+}
+
+function loadGame(){
+    const raw=localStorage.getItem(V25_SAVE_KEY) || localStorage.getItem("emotionPowersV27") || localStorage.getItem("emotionPowersV24") || localStorage.getItem("emotionPowersV23") || localStorage.getItem("emotionPowersV22") || localStorage.getItem("emotionPowersV9");
+    if(!raw) return false;
+    try{ return applySaveData(JSON.parse(raw)); }catch(err){ console.error("Local save invalid",err); return false; }
+}
+
+
+
+/* =========================
+   START GAME
+========================= */
+
+function startGame(){
+
+    S.started=true;
+
+    S.paused=false;
+    v13EnsureUI();
+    v13InitBenches();
+
+    ui.start.style.display =
+        "none";
+
+    ui.hud.style.display =
+        "block";
+
+    ui.quest.style.display =
+        "block";
+
+    ui.powers.style.display =
+        "block";
+
+    refresh();
+
+    msg(
+        "Explore the expanded world! Find Elder Arin and awaken every emotion."
+    );
+
+}
+
+
+window.startNew =
+    ()=>{
+        ensureAudio(); startMusic(); sfx("menu");
+        startWithLoading(false);
+    };
+
+
+window.loadExisting =
+    ()=>{
+        ensureAudio(); startMusic(); sfx("menu");
+        startWithLoading(true);
+    };
+
+
+window.selectPower =
+    selectPower;
+
+
+window.closeDialog =
+    closeDialog;
+
+
+window.openShop =
+    openShop;
+
+
+window.closeShop =
+    closeShop;
+
+
+window.buyHeal =
+    buyHeal;
+
+
+window.buySpeed =
+    buySpeed;
+
+
+window.buyPowerUpgrade =
+    buyPowerUpgrade;
+
+
+window.togglePause =
+    ()=>{
+
+        if(!S.started){
+            return;
+        }
+
+
+        S.paused =
+            !S.paused;
+
+
+        ui.pause.style.display =
+            S.paused
+            ? "flex"
+            : "none";
+
+    };
+
+
+window.saveGame =
+    saveGame;
+
+
+/* autosave */
+
+setInterval(
+    ()=>{
+
+        if(
+            S.started &&
+            !S.paused
+        ){
+
+            saveGame(true);
+
+        }
+
+    },
+    30000
+);
+
+
+/* minimap */
+
+setInterval(
+    ()=>{
+
+        if(
+            S.started &&
+            !S.paused
+        ){
+
+            minimap();
+
+        }
+
+    },
+    250
+);
+
+
+/* =========================
+   V13 — BENCH SEATING + WORLD DECORATION
+   Benches are deliberately placed beside paved paths,
+   never in the middle of roads. Press E to sit/stand.
+========================= */
+const V13 = {
+    benches: [],
+    nearbyBench: null,
+    sitting: false,
+    savedPosition: new THREE.Vector3(),
+    seatYaw: 0
+};
+
+function v13MakeBench(x,z,yaw=0){
+    const g = new THREE.Group();
+    g.position.set(x,0,z);
+    g.rotation.y = yaw;
+
+    const wood = new THREE.MeshStandardMaterial({color:0x6b3f20,roughness:.82});
+    const dark = new THREE.MeshStandardMaterial({color:0x242831,roughness:.65,metalness:.15});
+
+    const seat = new THREE.Mesh(new THREE.BoxGeometry(1.9,.16,.52),wood);
+    seat.position.y=1.05; seat.castShadow=true; g.add(seat);
+    const back = new THREE.Mesh(new THREE.BoxGeometry(1.9,.72,.12),wood);
+    back.position.set(0,1.43,-.22); back.castShadow=true; g.add(back);
+
+    [-.72,.72].forEach(px=>{
+        const leg = new THREE.Mesh(new THREE.BoxGeometry(.12,1.02,.12),dark);
+        leg.position.set(px,.52,0); leg.castShadow=true; g.add(leg);
+        const foot = new THREE.Mesh(new THREE.BoxGeometry(.32,.10,.42),dark);
+        foot.position.set(px,.06,0); foot.castShadow=true; g.add(foot);
+    });
+
+    // Small side planter/decor so the bench reads as part of the environment.
+    const planter = new THREE.Mesh(new THREE.CylinderGeometry(.22,.26,.28,8),dark);
+    planter.position.set(1.28,.14,.15); planter.castShadow=true; g.add(planter);
+    const plant = new THREE.Mesh(new THREE.SphereGeometry(.30,8,6),new THREE.MeshStandardMaterial({color:0x3c9142,roughness:1}));
+    plant.position.set(1.28,.48,.15); plant.scale.y=1.2; plant.castShadow=true; g.add(plant);
+
+    scene.add(g);
+    addRectCollider(x,z,1.15,.48,g,"bench");
+    V13.benches.push({group:g,x,z,yaw});
+    return g;
+}
+
+function v13InitBenches(){
+    if(V13.benches.length) return;
+    // Central plaza / sidewalk positions chosen away from the main road centerlines.
+    const spots=[
+        [8,18,Math.PI],[-8,18,0],[18,8,-Math.PI/2],[-18,8,Math.PI/2],
+        [38,18,Math.PI],[-38,18,0],[18,38,-Math.PI/2],[-18,38,Math.PI/2]
+    ];
+    spots.forEach(a=>v13MakeBench(a[0],a[1],a[2]));
+}
+
+function v13EnsureUI(){
+    if(!document.getElementById("benchPrompt")){
+        const p=document.createElement("div");
+        p.id="benchPrompt";
+        p.innerHTML='<span>E</span> — Sit on bench';
+        document.body.appendChild(p);
+    }
+    if(!document.getElementById("sitBtn")){
+        const b=document.createElement("button");
+        b.id="sitBtn"; b.textContent="SIT"; b.setAttribute("aria-label","Sit on bench");
+        b.addEventListener("click",v13ToggleSit);
+        document.body.appendChild(b);
+    }
+}
+
+function v13FindBench(){
+    let best=null, bestD=3.2;
+    for(const b of V13.benches){
+        const d=Math.hypot(player.position.x-b.x,player.position.z-b.z);
+        if(d<bestD){best=b;bestD=d;}
+    }
+    return best;
+}
+
+function v13ToggleSit(){
+    if(!S.started || S.paused) return;
+    if(V13.sitting){
+        V13.sitting=false;
+        S.sitting=false;
+        player.visible=true;
+        player.position.copy(V13.savedPosition);
+        if(ui.msg) msg("You stood up.");
+        return;
+    }
+    const b=v13FindBench();
+    if(!b) return;
+    V13.nearbyBench=b;
+    V13.savedPosition.copy(player.position);
+    V13.seatYaw=b.yaw;
+    player.position.set(b.x,0,b.z);
+    player.rotation.y=b.yaw;
+    V13.sitting=true;
+    S.sitting=true;
+    if(ui.msg) msg("Relaxing on the bench. Press E to stand.");
+}
+
+function v13UpdateBench(){
+    if(!S.started){return;}
+    if(V13.sitting){
+        player.position.y=0;
+        player.rotation.y=V13.seatYaw;
+        const bp=document.getElementById('benchPrompt'); if(bp) bp.style.display='block',bp.innerHTML='<span>E</span> — Stand up';
+        const sb=document.getElementById('sitBtn'); if(sb) sb.style.display='block',sb.textContent='STAND';
+        return;
+    }
+    const b=v13FindBench();
+    V13.nearbyBench=b;
+    const bp=document.getElementById('benchPrompt');
+    const sb=document.getElementById('sitBtn');
+    if(b){
+        if(bp){bp.style.display='block';bp.innerHTML='<span>E</span> — Sit on bench';}
+        if(sb && isMobile) sb.style.display='block';
+    }else{
+        if(bp) bp.style.display='none';
+        if(sb) sb.style.display='none';
+    }
+}
+
+window.addEventListener('keydown',e=>{
+    if(e.code==='KeyE' && !e.repeat) v13ToggleSit();
+});
+
+v13EnsureUI();
+setTimeout(v13InitBenches,0);
+
+/* =========================
+   MAIN LOOP
+========================= */
+
+let lastRenderTime = 0;
+const targetFrameMs = isMobile ? 1000/40 : 1000/60;
+let adaptivePixelRatio = Math.min(devicePixelRatio, isMobile ? 0.95 : 1.20);
+let performanceScore = 60;
+let performanceSampleTime = performance.now();
+let performanceFrames = 0;
+let lastAdaptiveChange = 0;
+let simulationTick = 0;
+let lastTaskArrowUpdate = 0;
+let lastColliderRebuild = 0;
+let lastNearestUpdate = 0;
+let cachedNearest = null;
+
+/* ============================================================
+   V12 WORLD STREAMING ENHANCEMENT
+   Inspired by the supplied large-world chunk system.
+   Only nearby decorative nature is kept active, while the
+   existing city, quests, powers, vehicles and bosses remain.
+   ============================================================ */
+const NATURE_CHUNK_SIZE = 60;
+const NATURE_VIEW_DIST = 2;
+const natureChunks = new Map();
+const natureTrunkGeo = new THREE.CylinderGeometry(.22,.30,2.4,6);
+const natureLeafGeo = new THREE.ConeGeometry(.85,1.8,6);
+const natureRockGeo = new THREE.DodecahedronGeometry(.48,0);
+const natureGrassGeo = new THREE.BoxGeometry(.07,.25,.07);
+const natureTrunkMat = new THREE.MeshStandardMaterial({color:0x5b3a20,roughness:1});
+const natureLeafMat = new THREE.MeshStandardMaterial({color:0x2f7a38,roughness:1});
+const natureRockMat = new THREE.MeshStandardMaterial({color:0x687078,roughness:1,flatShading:true});
+const natureGrassMat = new THREE.MeshStandardMaterial({color:0x4c9b43,roughness:1});
+const natureDummy = new THREE.Object3D();
+const natureSeed = new THREE.Vector3();
+
+function natureRand(seed){
+    let x = (seed|0) + 0x6D2B79F5;
+    return function(){
+        x = Math.imul(x ^ x>>>15, 1 | x);
+        x = (x + Math.imul(x ^ x>>>7, 61 | x)) ^ x;
+        return ((x ^ x>>>14) >>> 0) / 4294967296;
+    };
+}
+function gridRoadDistance(v){
+    const r = Math.abs((((v + 30) % 60) + 60) % 60 - 30);
+    return Math.min(r,60-r);
+}
+function natureCreateChunk(cx,cz){
+    const g = new THREE.Group();
+    g.position.set(cx*NATURE_CHUNK_SIZE,0,cz*NATURE_CHUNK_SIZE);
+    const rng = natureRand(cx*73856093 ^ cz*19349663);
+    const trees = [], rocks = [], grass = [];
+    for(let i=0;i<9;i++){
+        const x=rng()*NATURE_CHUNK_SIZE, z=rng()*NATURE_CHUNK_SIZE;
+        const wx=cx*NATURE_CHUNK_SIZE+x, wz=cz*NATURE_CHUNK_SIZE+z;
+        if(gridRoadDistance(wx)<7 || gridRoadDistance(wz)<7) continue;
+        trees.push([x,z,.8+rng()*.45]);
+    }
+    for(let i=0;i<8;i++){
+        const x=rng()*NATURE_CHUNK_SIZE, z=rng()*NATURE_CHUNK_SIZE;
+        const wx=cx*NATURE_CHUNK_SIZE+x, wz=cz*NATURE_CHUNK_SIZE+z;
+        if(gridRoadDistance(wx)<6 || gridRoadDistance(wz)<6) continue;
+        rocks.push([x,z,.65+rng()*.5]);
+    }
+    for(let i=0;i<24;i++){
+        const x=rng()*NATURE_CHUNK_SIZE, z=rng()*NATURE_CHUNK_SIZE;
+        const wx=cx*NATURE_CHUNK_SIZE+x, wz=cz*NATURE_CHUNK_SIZE+z;
+        if(gridRoadDistance(wx)<6 || gridRoadDistance(wz)<6) continue;
+        grass.push([x,z,.7+rng()*.5]);
+    }
+    if(trees.length){
+        const trunks=new THREE.InstancedMesh(natureTrunkGeo,natureTrunkMat,trees.length);
+        const leaves=new THREE.InstancedMesh(natureLeafGeo,natureLeafMat,trees.length);
+        trunks.castShadow=leaves.castShadow=!isMobile;
+        for(let i=0;i<trees.length;i++){
+            const [x,z,scale]=trees[i];
+            natureDummy.position.set(x,1.2*scale,z); natureDummy.scale.set(scale,scale,scale); natureDummy.rotation.set(0,0,0); natureDummy.updateMatrix(); trunks.setMatrixAt(i,natureDummy.matrix);
+            natureDummy.position.set(x,2.75*scale,z); natureDummy.scale.set(scale,scale,scale); natureDummy.updateMatrix(); leaves.setMatrixAt(i,natureDummy.matrix);
+        }
+        trunks.instanceMatrix.needsUpdate=true; leaves.instanceMatrix.needsUpdate=true;
+        g.add(trunks,leaves);
+    }
+    if(rocks.length){
+        const rocksMesh=new THREE.InstancedMesh(natureRockGeo,natureRockMat,rocks.length);
+        rocksMesh.castShadow=rocksMesh.receiveShadow=!isMobile;
+        for(let i=0;i<rocks.length;i++){
+            const [x,z,scale]=rocks[i];
+            natureDummy.position.set(x,.38*scale,z); natureDummy.rotation.set(rng()*2.5,rng()*3,rng()*2.5); natureDummy.scale.set(scale,scale*.7,scale); natureDummy.updateMatrix(); rocksMesh.setMatrixAt(i,natureDummy.matrix);
+        }
+        rocksMesh.instanceMatrix.needsUpdate=true;
+        g.add(rocksMesh);
+    }
+    if(grass.length){
+        const grassMesh=new THREE.InstancedMesh(natureGrassGeo,natureGrassMat,grass.length);
+        for(let i=0;i<grass.length;i++){
+            const [x,z,scale]=grass[i];
+            natureDummy.position.set(x,.12,z); natureDummy.rotation.set(0,rng()*Math.PI,0); natureDummy.scale.set(scale,scale,scale); natureDummy.updateMatrix(); grassMesh.setMatrixAt(i,natureDummy.matrix);
+        }
+        grassMesh.instanceMatrix.needsUpdate=true;
+        g.add(grassMesh);
+    }
+    return g;
+}
+function updateNatureChunks(){
+    if(!S.started) return;
+    const cx=Math.floor(player.position.x/NATURE_CHUNK_SIZE);
+    const cz=Math.floor(player.position.z/NATURE_CHUNK_SIZE);
+    if(cx===natureLastX && cz===natureLastZ) return;
+    natureLastX=cx; natureLastZ=cz;
+    const needed=new Set();
+    for(let dx=-NATURE_VIEW_DIST;dx<=NATURE_VIEW_DIST;dx++){
+        for(let dz=-NATURE_VIEW_DIST;dz<=NATURE_VIEW_DIST;dz++){
+            const nx=cx+dx,nz=cz+dz,key=nx+','+nz;
+            needed.add(key);
+            if(!natureChunks.has(key)){
+                const g=natureCreateChunk(nx,nz);
+                natureChunks.set(key,g); scene.add(g);
+            }
+        }
+    }
+    for(const [key,g] of natureChunks){
+        if(!needed.has(key)){
+            scene.remove(g); natureChunks.delete(key);
+        }
+    }
+}
+let natureLastX=999999,natureLastZ=999999;
+
+function loop(now = performance.now()){
+
+    requestAnimationFrame(loop);
+
+    if(now - lastRenderTime < targetFrameMs){
+        return;
+    }
+    if(S.paused){
+        return;
+    }
+
+    lastRenderTime = now;
+
+
+    const dt =
+        Math.min(
+            clock.getDelta(),
+            .05
+        );
+
+
+    if(
+        msg.time>0
+    ){
+
+        msg.time-=dt;
+
+
+        if(
+            msg.time<=0
+        ){
+
+            ui.msg.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    if(
+        S.started &&
+        !S.paused
+    ){
+
+        if(!V13.benches.length) v13InitBenches();
+        v13UpdateBench();
+        if(!V13.sitting) movement(dt);
+        animateCharacters(dt);
+        animateVehicles(dt);
+
+        simulationTick++;
+        const slowTick=isMobile ? simulationTick%2===0 : true;
+        if(slowTick){
+            enemiesUpdate(dt*(isMobile?2:1));
+            npcsUpdate(dt*(isMobile?2:1));
+        }
+        effectsUpdate(dt);
+        updateTransformation(dt);
+        bossUpdate(dt);
+        cameraUpdate(dt);
+        if(dayNightOn){ S.worldTime=(S.worldTime+dt*.004)%1; applyDayNight(); }
+        if(now-lastTaskArrowUpdate>90){ updateTaskArrow(); lastTaskArrowUpdate=now; }
+
+        if(!isMobile || simulationTick%2===0){
+            crystals.forEach(
+                c=>{
+
+                if(
+                    c.visible
+                ){
+
+                    c.rotation.y +=
+                        dt*1.4;
+
+
+                    if(
+                        player.position.distanceTo(
+                            c.position
+                        )<1.5
+                    ){
+
+                        collectCrystal(c);
+
+                    }
+
+                }
+
+            }
+            );
+        }
+
+
+        if(now-lastNearestUpdate>120){ cachedNearest=nearest(); lastNearestUpdate=now; }
+        const n=cachedNearest;
+
+
+        if(n){
+
+            ui.prompt.style.display =
+                "block";
+
+
+            if(
+                n.type==="npc"
+            ){
+
+                ui.prompt.textContent =
+                    "Press E to talk to "+
+                    n.obj.userData.name;
+
+            }
+
+            else if(
+                n.type==="vehicle"
+            ){
+
+                ui.prompt.textContent =
+                    "Press E to drive "+
+                    n.obj.userData.name;
+
+            }
+
+            else{
+
+                ui.prompt.textContent =
+                    "Press E to collect crystal";
+
+            }
+
+        }else{
+
+            ui.prompt.style.display =
+                "none";
+
+        }
+
+    }
+
+
+    renderer.render(
+        scene,
+        camera
+    );
+    playableFirstFrame();
+
+    // V4 adaptive renderer: automatically lowers/raises resolution when sustained frame rate changes.
+    performanceFrames++;
+    if(now - performanceSampleTime >= 1500){
+        const fps = performanceFrames * 1000 / (now - performanceSampleTime);
+        performanceScore = performanceScore * 0.65 + fps * 0.35;
+        performanceFrames = 0;
+        performanceSampleTime = now;
+        if(now - lastAdaptiveChange > 3000){
+            const minRatio = isMobile ? 0.70 : 0.80;
+            const maxRatio = Math.min(devicePixelRatio, isMobile ? 1.0 : 1.25);
+            if(performanceScore < (isMobile ? 27 : 38) && adaptivePixelRatio > minRatio){
+                adaptivePixelRatio = Math.max(minRatio, adaptivePixelRatio - 0.10);
+                renderer.setPixelRatio(adaptivePixelRatio);
+                lastAdaptiveChange = now;
+            }else if(performanceScore > (isMobile ? 47 : 54) && adaptivePixelRatio < maxRatio){
+                adaptivePixelRatio = Math.min(maxRatio, adaptivePixelRatio + 0.05);
+                renderer.setPixelRatio(adaptivePixelRatio);
+                lastAdaptiveChange = now;
+            }
+        }
+    }
+
+}
+
+
+document.getElementById("musicBtn")?.addEventListener("click",toggleMusic);
+document.getElementById("sfxBtn")?.addEventListener("click",toggleSfx);
+document.getElementById("taskArrowBtn")?.addEventListener("click",()=>{toggleTaskArrow();saveV25Settings();});
+document.getElementById("mapToggleBtn")?.addEventListener("click",toggleMap);
+document.getElementById("dayBtn")?.addEventListener("click",toggleDayNight);
+document.getElementById("recordBtn")?.addEventListener("click",toggleRecordingMode);
+loadV25Settings();
+S.mapEnabled=mapOn; S.dayNightEnabled=dayNightOn; updateV25Controls(); applyDayNight();
+
+loop();
+
+if($("loadingScreen")?.style.display !== "flex") setTimeout(playableReady,0);
+
+
+
+/* resize */
+
+window.addEventListener(
+    "resize",
+    ()=>{
+
+        camera.aspect =
+            innerWidth/
+            innerHeight;
+
+        camera.updateProjectionMatrix();
+
+        renderer.setSize(
+            innerWidth,
+            innerHeight
+        );
+
+        renderer.setPixelRatio(adaptivePixelRatio);
+
+    }
+);
+
+</script>
 
 </body>
 </html>
