@@ -1,0 +1,2736 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+<title>STEEL HERO — 3D Armor Flight</title>
+
+<style>
+*{
+    box-sizing:border-box;
+    margin:0;
+    padding:0;
+    user-select:none;
+    -webkit-user-select:none;
+}
+
+html,body{
+    width:100%;
+    height:100%;
+    overflow:hidden;
+    background:#02050b;
+    font-family:Arial,Helvetica,sans-serif;
+}
+
+canvas{
+    display:block;
+}
+
+#game{
+    position:fixed;
+    inset:0;
+}
+
+#hud{
+    position:fixed;
+    inset:0;
+    pointer-events:none;
+    color:white;
+}
+
+.topbar{
+    position:absolute;
+    top:15px;
+    left:15px;
+    right:15px;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+}
+
+.panel{
+    background:rgba(3,8,18,.78);
+    border:1px solid rgba(0,210,255,.45);
+    box-shadow:0 0 18px rgba(0,180,255,.12);
+    border-radius:12px;
+    padding:12px;
+    backdrop-filter:blur(8px);
+}
+
+.stats{
+    width:230px;
+}
+
+.stat{
+    margin-bottom:8px;
+}
+
+.stat:last-child{
+    margin-bottom:0;
+}
+
+.label{
+    font-size:10px;
+    letter-spacing:2px;
+    opacity:.75;
+    margin-bottom:4px;
+}
+
+.bar{
+    width:100%;
+    height:9px;
+    background:#111923;
+    border-radius:10px;
+    overflow:hidden;
+}
+
+.fill{
+    height:100%;
+    width:100%;
+    transition:width .15s linear;
+}
+
+.health{
+    background:#31e878;
+}
+
+.energy{
+    background:#24caff;
+}
+
+.suitbar{
+    text-align:right;
+    min-width:180px;
+}
+
+#suitName{
+    font-size:18px;
+    font-weight:bold;
+    letter-spacing:2px;
+}
+
+#modeText{
+    margin-top:5px;
+    font-size:11px;
+    color:#65dfff;
+}
+
+#mission{
+    position:absolute;
+    top:120px;
+    left:50%;
+    transform:translateX(-50%);
+    min-width:300px;
+    max-width:90%;
+    text-align:center;
+    padding:10px 15px;
+    border-radius:10px;
+    background:rgba(0,0,0,.55);
+    border:1px solid rgba(255,255,255,.15);
+    font-size:13px;
+}
+
+#assistant{
+    position:absolute;
+    left:15px;
+    bottom:110px;
+    max-width:330px;
+    padding:10px 13px;
+    border-left:3px solid #25d8ff;
+    background:rgba(2,7,15,.78);
+    font-size:12px;
+    line-height:1.4;
+    border-radius:0 9px 9px 0;
+}
+
+#crosshair{
+    position:absolute;
+    left:50%;
+    top:50%;
+    width:35px;
+    height:35px;
+    transform:translate(-50%,-50%);
+    border:1px solid rgba(100,230,255,.75);
+    border-radius:50%;
+}
+
+#crosshair:before,
+#crosshair:after{
+    content:"";
+    position:absolute;
+    background:#8cecff;
+}
+
+#crosshair:before{
+    width:9px;
+    height:1px;
+    left:13px;
+    top:16px;
+}
+
+#crosshair:after{
+    width:1px;
+    height:9px;
+    left:16px;
+    top:13px;
+}
+
+#target{
+    position:absolute;
+    display:none;
+    width:60px;
+    height:60px;
+    border:2px solid #ff4e4e;
+    border-radius:50%;
+    transform:translate(-50%,-50%);
+}
+
+#target span{
+    position:absolute;
+    top:-18px;
+    left:50%;
+    transform:translateX(-50%);
+    font-size:9px;
+    color:#ff8b8b;
+    white-space:nowrap;
+}
+
+#controls{
+    position:absolute;
+    left:15px;
+    bottom:15px;
+    display:flex;
+    flex-wrap:wrap;
+    gap:7px;
+    max-width:430px;
+    pointer-events:auto;
+}
+
+button{
+    border:none;
+    color:white;
+    background:rgba(7,18,31,.88);
+    border:1px solid rgba(54,212,255,.5);
+    padding:10px 13px;
+    border-radius:9px;
+    font-weight:bold;
+    font-size:11px;
+    letter-spacing:.5px;
+    cursor:pointer;
+    touch-action:none;
+}
+
+button:hover{
+    background:rgba(10,39,59,.95);
+}
+
+button:active{
+    transform:scale(.96);
+}
+
+#suitMenu{
+    position:absolute;
+    left:15px;
+    bottom:160px;
+    width:220px;
+    display:none;
+    pointer-events:auto;
+}
+
+#suitMenu button{
+    display:block;
+    width:100%;
+    margin-bottom:7px;
+    text-align:left;
+}
+
+#startScreen{
+    position:fixed;
+    inset:0;
+    z-index:20;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:
+        radial-gradient(circle at center,rgba(0,120,190,.15),transparent 45%),
+        #02050b;
+    color:white;
+    text-align:center;
+}
+
+.startBox{
+    width:min(620px,92%);
+    padding:30px;
+    border:1px solid rgba(50,210,255,.45);
+    border-radius:20px;
+    background:rgba(4,10,20,.88);
+    box-shadow:0 0 50px rgba(0,180,255,.13);
+}
+
+.logo{
+    font-size:clamp(38px,8vw,76px);
+    font-weight:900;
+    letter-spacing:7px;
+    color:#eafcff;
+    text-shadow:
+        0 0 8px #25d8ff,
+        0 0 28px rgba(37,216,255,.6);
+}
+
+.subtitle{
+    margin-top:10px;
+    color:#7adfff;
+    letter-spacing:3px;
+    font-size:13px;
+}
+
+.startBox p{
+    margin:20px auto;
+    max-width:500px;
+    color:#b9c9d7;
+    line-height:1.6;
+    font-size:13px;
+}
+
+#startButton{
+    font-size:15px;
+    padding:14px 28px;
+    background:#063a55;
+    border-color:#29d9ff;
+}
+
+.help{
+    margin-top:18px;
+    color:#718493;
+    font-size:11px;
+    line-height:1.7;
+}
+
+#notification{
+    position:absolute;
+    top:50%;
+    left:50%;
+    transform:translate(-50%,-50%);
+    padding:12px 20px;
+    background:rgba(0,0,0,.8);
+    border:1px solid rgba(80,220,255,.5);
+    border-radius:10px;
+    opacity:0;
+    transition:opacity .2s;
+    pointer-events:none;
+    font-weight:bold;
+}
+
+@media(max-width:650px){
+    .stats{
+        width:170px;
+    }
+
+    #mission{
+        top:100px;
+        font-size:11px;
+    }
+
+    #assistant{
+        bottom:125px;
+        max-width:250px;
+        font-size:10px;
+    }
+
+    #controls{
+        max-width:100%;
+        right:10px;
+    }
+
+    button{
+        padding:9px 10px;
+        font-size:10px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div id="game"></div>
+
+<div id="startScreen">
+    <div class="startBox">
+        <div class="logo">STEEL HERO</div>
+        <div class="subtitle">3D ARMORED FLIGHT SYSTEM</div>
+
+        <p>
+            Enter the city, call your armor from the sky, fly between
+            buildings, lock onto hostile drones and protect the city.
+        </p>
+
+        <button id="startButton">START GAME</button>
+
+        <div class="help">
+            WASD / ARROWS = MOVE<br>
+            SPACE = FLY / LAND<br>
+            SHIFT = BOOST<br>
+            F = REPULSOR<br>
+            M = MISSILE<br>
+            T = TARGET LOCK<br>
+            C = CALL SUIT
+        </div>
+    </div>
+</div>
+
+<div id="hud">
+
+    <div class="topbar">
+
+        <div class="panel stats">
+
+            <div class="stat">
+                <div class="label">SUIT INTEGRITY</div>
+                <div class="bar">
+                    <div id="healthFill" class="fill health"></div>
+                </div>
+            </div>
+
+            <div class="stat">
+                <div class="label">ENERGY</div>
+                <div class="bar">
+                    <div id="energyFill" class="fill energy"></div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="panel suitbar">
+            <div id="suitName">NO SUIT</div>
+            <div id="modeText">SYSTEM OFFLINE</div>
+        </div>
+
+    </div>
+
+    <div id="mission">
+        Mission: Call an armor set.
+    </div>
+
+    <div id="crosshair"></div>
+
+    <div id="target">
+        <span>TARGET LOCK</span>
+    </div>
+
+    <div id="assistant">
+        SYSTEM: Waiting for pilot.
+    </div>
+
+    <div id="notification"></div>
+
+    <div id="suitMenu" class="panel">
+        <button data-mark="1">MARK 1 — BALANCED</button>
+        <button data-mark="2">MARK 2 — SPEED</button>
+        <button data-mark="3">MARK 3 — HEAVY</button>
+    </div>
+
+    <div id="controls">
+
+        <button id="callSuitButton">CALL SUIT</button>
+        <button id="flyButton">FLY</button>
+        <button id="boostButton">BOOST</button>
+        <button id="repulsorButton">REPULSOR</button>
+        <button id="missileButton">MISSILE</button>
+        <button id="targetButton">TARGET</button>
+
+    </div>
+
+</div>
+
+<!-- Three.js -->
+<script src="https://cdn.jsdelivr.net/npm/three@0.181.2/build/three.min.js"></script>
+
+<script>
+"use strict";
+
+/* =========================================================
+   STEEL HERO
+   Original 3D armored superhero prototype
+   ========================================================= */
+
+let scene;
+let camera;
+let renderer;
+let clock;
+
+let hero;
+let heroVelocity = new THREE.Vector3();
+
+let keys = {};
+
+let started = false;
+let flying = false;
+let boosting = false;
+let targetLocked = false;
+
+let health = 100;
+let energy = 100;
+
+let selectedMark = 1;
+
+let enemies = [];
+let projectiles = [];
+let missiles = [];
+let effects = [];
+
+let suitParts = [];
+let suitCalling = false;
+
+let missionNumber = 0;
+let missionActive = false;
+
+let cityObjects = [];
+
+const healthFill = document.getElementById("healthFill");
+const energyFill = document.getElementById("energyFill");
+const suitName = document.getElementById("suitName");
+const modeText = document.getElementById("modeText");
+const missionText = document.getElementById("mission");
+const assistant = document.getElementById("assistant");
+const targetUI = document.getElementById("target");
+const notification = document.getElementById("notification");
+const suitMenu = document.getElementById("suitMenu");
+
+/* =========================================================
+   SUIT DATA
+   ========================================================= */
+
+const suits = {
+    1:{
+        name:"MARK 1",
+        speed:0.20,
+        flight:0.26,
+        boost:0.42,
+        armor:100,
+        energy:100,
+        color:0x46515a,
+        glow:0x38d9ff
+    },
+
+    2:{
+        name:"MARK 2",
+        speed:0.25,
+        flight:0.34,
+        boost:0.58,
+        armor:85,
+        energy:120,
+        color:0xb8c3ca,
+        glow:0x5beaff
+    },
+
+    3:{
+        name:"MARK 3",
+        speed:0.16,
+        flight:0.22,
+        boost:0.38,
+        armor:150,
+        energy:90,
+        color:0x202a35,
+        glow:0xffb52e
+    }
+};
+
+let suit = suits[1];
+
+/* =========================================================
+   INIT
+   ========================================================= */
+
+function init(){
+
+    scene = new THREE.Scene();
+
+    scene.background = new THREE.Color(0x030914);
+
+    scene.fog = new THREE.FogExp2(0x030914,0.0025);
+
+    camera = new THREE.PerspectiveCamera(
+        65,
+        window.innerWidth/window.innerHeight,
+        0.1,
+        3000
+    );
+
+    camera.position.set(0,8,18);
+
+    renderer = new THREE.WebGLRenderer({
+        antialias:true,
+        powerPreference:"high-performance"
+    });
+
+    renderer.setSize(window.innerWidth,window.innerHeight);
+
+    renderer.setPixelRatio(
+        Math.min(window.devicePixelRatio,2)
+    );
+
+    renderer.shadowMap.enabled = true;
+
+    renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+
+    document.getElementById("game").appendChild(renderer.domElement);
+
+    clock = new THREE.Clock();
+
+    createLighting();
+
+    createCity();
+
+    createHero();
+
+    createEnemies();
+
+    window.addEventListener("resize",onResize);
+
+    window.addEventListener("keydown",onKeyDown);
+
+    window.addEventListener("keyup",onKeyUp);
+
+    setupButtons();
+
+    animate();
+}
+
+/* =========================================================
+   LIGHTING
+   ========================================================= */
+
+function createLighting(){
+
+    const ambient = new THREE.HemisphereLight(
+        0x78aaff,
+        0x111827,
+        1.5
+    );
+
+    scene.add(ambient);
+
+    const moon = new THREE.DirectionalLight(
+        0xa8d9ff,
+        2
+    );
+
+    moon.position.set(
+        -200,
+        300,
+        100
+    );
+
+    moon.castShadow = true;
+
+    moon.shadow.mapSize.width = 2048;
+    moon.shadow.mapSize.height = 2048;
+
+    scene.add(moon);
+
+    const redLight = new THREE.PointLight(
+        0xff204d,
+        4,
+        100
+    );
+
+    redLight.position.set(
+        0,
+        25,
+        -50
+    );
+
+    scene.add(redLight);
+}
+
+/* =========================================================
+   CITY
+   ========================================================= */
+
+function createCity(){
+
+    const groundGeometry =
+        new THREE.PlaneGeometry(
+            1800,
+            1800
+        );
+
+    const groundMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x071018,
+            roughness:.9,
+            metalness:.1
+        });
+
+    const ground =
+        new THREE.Mesh(
+            groundGeometry,
+            groundMaterial
+        );
+
+    ground.rotation.x = -Math.PI/2;
+
+    ground.receiveShadow = true;
+
+    scene.add(ground);
+
+    const roadMaterial =
+        new THREE.MeshStandardMaterial({
+            color:0x101820,
+            roughness:.8
+        });
+
+    for(let x=-700;x<=700;x+=80){
+
+        const road =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    18,
+                    .15,
+                    1600
+                ),
+                roadMaterial
+            );
+
+        road.position.set(
+            x,
+            .08,
+            0
+        );
+
+        scene.add(road);
+    }
+
+    for(let z=-700;z<=700;z+=80){
+
+        const road =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    1600,
+                    .15,
+                    18
+                ),
+                roadMaterial
+            );
+
+        road.position.set(
+            0,
+            .08,
+            z
+        );
+
+        scene.add(road);
+    }
+
+    const buildingMaterials = [
+        0x18222d,
+        0x202b37,
+        0x111c26,
+        0x27333f,
+        0x15202b
+    ];
+
+    for(let x=-680;x<=680;x+=40){
+
+        for(let z=-680;z<=680;z+=40){
+
+            if(
+                Math.abs(x)%80===0 ||
+                Math.abs(z)%80===0
+            ){
+                continue;
+            }
+
+            const height =
+                15 + Math.random()*85;
+
+            const width =
+                20 + Math.random()*14;
+
+            const depth =
+                20 + Math.random()*14;
+
+            const material =
+                new THREE.MeshStandardMaterial({
+                    color:
+                        buildingMaterials[
+                            Math.floor(
+                                Math.random()*
+                                buildingMaterials.length
+                            )
+                        ],
+                    roughness:.75,
+                    metalness:.2
+                });
+
+            const building =
+                new THREE.Mesh(
+                    new THREE.BoxGeometry(
+                        width,
+                        height,
+                        depth
+                    ),
+                    material
+                );
+
+            building.position.set(
+                x,
+                height/2,
+                z
+            );
+
+            building.castShadow = true;
+            building.receiveShadow = true;
+
+            scene.add(building);
+
+            cityObjects.push(building);
+
+            addWindows(
+                building,
+                width,
+                height,
+                depth
+            );
+        }
+    }
+}
+
+/* =========================================================
+   BUILDING WINDOWS
+   ========================================================= */
+
+function addWindows(
+    building,
+    width,
+    height,
+    depth
+){
+
+    const material =
+        new THREE.MeshBasicMaterial({
+            color:0x2ec9ff
+        });
+
+    for(
+        let y=8;
+        y<height-3;
+        y+=9
+    ){
+
+        if(Math.random()<.25){
+            continue;
+        }
+
+        const window =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    1.5,
+                    2,
+                    .2
+                ),
+                material
+            );
+
+        window.position.set(
+            building.position.x -
+            width/2 +
+            3 +
+            Math.random()*(width-6),
+
+            y,
+
+            building.position.z -
+            depth/2 -
+            .12
+        );
+
+        scene.add(window);
+
+        const window2 =
+            window.clone();
+
+        window2.position.z =
+            building.position.z +
+            depth/2 +
+            .12;
+
+        scene.add(window2);
+    }
+}
+
+/* =========================================================
+   HERO
+   ========================================================= */
+
+function createHero(){
+
+    hero = new THREE.Group();
+
+    hero.position.set(
+        0,
+        4,
+        20
+    );
+
+    scene.add(hero);
+
+    createSuitBody();
+}
+
+/* =========================================================
+   SUIT BODY
+   ========================================================= */
+
+function createSuitBody(){
+
+    while(hero.children.length){
+        hero.remove(hero.children[0]);
+    }
+
+    const bodyMaterial =
+        new THREE.MeshStandardMaterial({
+            color:suit.color,
+            metalness:.75,
+            roughness:.3
+        });
+
+    const glowMaterial =
+        new THREE.MeshBasicMaterial({
+            color:suit.glow
+        });
+
+    /* torso */
+
+    const torso =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                2.2,
+                2.6,
+                1.25
+            ),
+            bodyMaterial
+        );
+
+    torso.position.y = 2.5;
+
+    torso.castShadow = true;
+
+    hero.add(torso);
+
+    /* head */
+
+    const head =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                1.35,
+                1.25,
+                1.25
+            ),
+            bodyMaterial
+        );
+
+    head.position.y = 4.45;
+
+    head.castShadow = true;
+
+    hero.add(head);
+
+    /* visor */
+
+    const visor =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                .95,
+                .25,
+                .08
+            ),
+            glowMaterial
+        );
+
+    visor.position.set(
+        0,
+        4.55,
+        .64
+    );
+
+    hero.add(visor);
+
+    /* chest core */
+
+    const core =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                .34,
+                .34,
+                .08,
+                24
+            ),
+            glowMaterial
+        );
+
+    core.rotation.x =
+        Math.PI/2;
+
+    core.position.set(
+        0,
+        2.65,
+        .68
+    );
+
+    hero.add(core);
+
+    /* arms */
+
+    createArm(-1);
+    createArm(1);
+
+    /* legs */
+
+    createLeg(-1);
+    createLeg(1);
+
+    /* shoulder lights */
+
+    for(const side of [-1,1]){
+
+        const light =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    .35,
+                    .2,
+                    .45
+                ),
+                glowMaterial
+            );
+
+        light.position.set(
+            side*1.05,
+            3.45,
+            .05
+        );
+
+        hero.add(light);
+    }
+}
+
+function createArm(side){
+
+    const material =
+        new THREE.MeshStandardMaterial({
+            color:suit.color,
+            metalness:.75,
+            roughness:.3
+        });
+
+    const arm =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                .65,
+                2.1,
+                .75
+            ),
+            material
+        );
+
+    arm.position.set(
+        side*1.55,
+        2.35,
+        0
+    );
+
+    arm.rotation.z =
+        side*.08;
+
+    arm.castShadow = true;
+
+    hero.add(arm);
+
+    const palm =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                .25,
+                .25,
+                .08,
+                16
+            ),
+            new THREE.MeshBasicMaterial({
+                color:suit.glow
+            })
+        );
+
+    palm.rotation.x =
+        Math.PI/2;
+
+    palm.position.set(
+        side*1.55,
+        1.35,
+        .43
+    );
+
+    hero.add(palm);
+}
+
+function createLeg(side){
+
+    const material =
+        new THREE.MeshStandardMaterial({
+            color:suit.color,
+            metalness:.75,
+            roughness:.3
+        });
+
+    const leg =
+        new THREE.Mesh(
+            new THREE.BoxGeometry(
+                .8,
+                2.2,
+                .9
+            ),
+            material
+        );
+
+    leg.position.set(
+        side*.58,
+        .45,
+        0
+    );
+
+    leg.castShadow = true;
+
+    hero.add(leg);
+}
+
+/* =========================================================
+   ENEMIES
+   ========================================================= */
+
+function createEnemies(){
+
+    for(let i=0;i<12;i++){
+
+        createEnemy(
+            new THREE.Vector3(
+                (Math.random()-.5)*900,
+                20+Math.random()*70,
+                (Math.random()-.5)*900
+            )
+        );
+    }
+}
+
+function createEnemy(position){
+
+    const enemy =
+        new THREE.Group();
+
+    enemy.position.copy(position);
+
+    const body =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                2.5,
+                12,
+                12
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0x3b4652,
+                metalness:.7,
+                roughness:.3
+            })
+        );
+
+    enemy.add(body);
+
+    const eye =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .6,
+                12,
+                12
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0xff3030
+            })
+        );
+
+    eye.position.z = 2.25;
+
+    enemy.add(eye);
+
+    const ring =
+        new THREE.Mesh(
+            new THREE.TorusGeometry(
+                3,
+                .12,
+                8,
+                24
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0xff3045
+            })
+        );
+
+    ring.rotation.x =
+        Math.PI/2;
+
+    enemy.add(ring);
+
+    enemy.userData = {
+        health:100,
+        speed:.08+Math.random()*.05,
+        cooldown:Math.random()*3,
+        alive:true
+    };
+
+    scene.add(enemy);
+
+    enemies.push(enemy);
+}
+
+/* =========================================================
+   SUIT CALL
+   ========================================================= */
+
+function callSuit(mark){
+
+    if(suitCalling){
+        return;
+    }
+
+    selectedMark = mark;
+
+    suit = suits[mark];
+
+    suitCalling = true;
+
+    flying = false;
+
+    suitMenu.style.display = "none";
+
+    assistant.textContent =
+        "SYSTEM: Armor deployment requested. Stand by.";
+
+    missionText.textContent =
+        "Armor deployment in progress...";
+
+    removeCurrentSuit();
+
+    createFallingSuitParts();
+
+    health = suit.armor;
+
+    energy = suit.energy;
+
+    updateHUD();
+}
+
+function removeCurrentSuit(){
+
+    while(hero.children.length){
+        hero.remove(hero.children[0]);
+    }
+}
+
+function createFallingSuitParts(){
+
+    const pieces = [
+        "helmet",
+        "chest",
+        "leftArm",
+        "rightArm",
+        "leftLeg",
+        "rightLeg"
+    ];
+
+    suitParts = [];
+
+    pieces.forEach((name,index)=>{
+
+        const piece =
+            new THREE.Mesh(
+                new THREE.BoxGeometry(
+                    name==="chest" ? 2.2 : 1.1,
+                    name.includes("Leg") ? 1.7 : 1.1,
+                    name==="chest" ? 1.2 : 1
+                ),
+                new THREE.MeshStandardMaterial({
+                    color:suit.color,
+                    metalness:.85,
+                    roughness:.25
+                })
+            );
+
+        piece.position.set(
+            hero.position.x +
+            (Math.random()-.5)*20,
+
+            120 + index*15,
+
+            hero.position.z +
+            (Math.random()-.5)*20
+        );
+
+        piece.castShadow = true;
+
+        piece.userData = {
+            targetName:name,
+            speed:1.1+index*.08
+        };
+
+        scene.add(piece);
+
+        suitParts.push(piece);
+    });
+}
+
+/* =========================================================
+   SUIT ASSEMBLY
+   ========================================================= */
+
+function updateSuitAssembly(){
+
+    if(!suitCalling){
+        return;
+    }
+
+    let attached = 0;
+
+    for(const piece of suitParts){
+
+        const target =
+            getSuitTargetPosition(
+                piece.userData.targetName
+            );
+
+        const direction =
+            target.clone().sub(piece.position);
+
+        if(direction.length()<1){
+
+            piece.position.copy(target);
+
+            attachSuitPiece(piece);
+
+            attached++;
+
+        }else{
+
+            direction.normalize();
+
+            piece.position.add(
+                direction.multiplyScalar(
+                    piece.userData.speed
+                )
+            );
+        }
+    }
+
+    if(attached>=suitParts.length){
+
+        suitCalling = false;
+
+        createSuitBody();
+
+        for(const piece of suitParts){
+            scene.remove(piece);
+        }
+
+        suitParts = [];
+
+        assistant.textContent =
+            "SYSTEM: Armor assembly complete.";
+
+        missionText.textContent =
+            "Mission: Defend the city from hostile drones.";
+
+        showNotification(
+            suit.name+" ONLINE"
+        );
+
+        startMission();
+    }
+}
+
+function getSuitTargetPosition(name){
+
+    const p =
+        hero.position.clone();
+
+    if(name==="helmet"){
+        p.y += 4.5;
+    }
+
+    if(name==="chest"){
+        p.y += 2.5;
+    }
+
+    if(name==="leftArm"){
+        p.x -= 1.5;
+        p.y += 2.3;
+    }
+
+    if(name==="rightArm"){
+        p.x += 1.5;
+        p.y += 2.3;
+    }
+
+    if(name==="leftLeg"){
+        p.x -= .6;
+        p.y += .45;
+    }
+
+    if(name==="rightLeg"){
+        p.x += .6;
+        p.y += .45;
+    }
+
+    return p;
+}
+
+function attachSuitPiece(piece){
+
+    const name =
+        piece.userData.targetName;
+
+    if(name==="helmet"){
+        createImpactRing(piece.position);
+    }
+
+    if(name==="chest"){
+        createImpactRing(piece.position);
+    }
+}
+
+/* =========================================================
+   MISSION
+   ========================================================= */
+
+function startMission(){
+
+    missionActive = true;
+
+    missionNumber++;
+
+    missionText.textContent =
+        "Mission "+missionNumber+
+        ": Destroy 3 hostile drones.";
+
+    assistant.textContent =
+        "SYSTEM: Hostile drones detected.";
+}
+
+function checkMission(){
+
+    if(!missionActive){
+        return;
+    }
+
+    const alive =
+        enemies.filter(
+            e=>e.userData.alive
+        ).length;
+
+    if(alive<=9){
+
+        missionActive = false;
+
+        missionText.textContent =
+            "Mission complete. Continue patrolling the city.";
+
+        assistant.textContent =
+            "SYSTEM: Threat level reduced.";
+
+        showNotification(
+            "MISSION COMPLETE"
+        );
+    }
+}
+
+/* =========================================================
+   CONTROLS
+   ========================================================= */
+
+function onKeyDown(e){
+
+    keys[e.key.toLowerCase()] = true;
+
+    if(e.key===" "){
+        e.preventDefault();
+    }
+
+    if(!started){
+        return;
+    }
+
+    if(e.key===" "){
+        toggleFlight();
+    }
+
+    if(e.key.toLowerCase()==="f"){
+        fireRepulsor();
+    }
+
+    if(e.key.toLowerCase()==="m"){
+        fireMissile();
+    }
+
+    if(e.key.toLowerCase()==="t"){
+        toggleTarget();
+    }
+
+    if(e.key.toLowerCase()==="c"){
+        suitMenu.style.display =
+            suitMenu.style.display==="block"
+            ? "none"
+            : "block";
+    }
+}
+
+function onKeyUp(e){
+
+    keys[e.key.toLowerCase()] = false;
+}
+
+/* =========================================================
+   HERO MOVEMENT
+   ========================================================= */
+
+function updateHero(delta){
+
+    if(!started || suitCalling){
+        return;
+    }
+
+    const forward =
+        keys["w"] ||
+        keys["arrowup"];
+
+    const backward =
+        keys["s"] ||
+        keys["arrowdown"];
+
+    const left =
+        keys["a"] ||
+        keys["arrowleft"];
+
+    const right =
+        keys["d"] ||
+        keys["arrowright"];
+
+    boosting =
+        keys["shift"] &&
+        flying &&
+        energy>2;
+
+    let speed =
+        flying
+        ? suit.flight
+        : suit.speed;
+
+    if(boosting){
+
+        speed =
+            suit.boost;
+
+        energy -= delta*10;
+
+        if(energy<0){
+            energy=0;
+        }
+    }
+
+    if(forward){
+        hero.translateZ(-speed*60*delta);
+    }
+
+    if(backward){
+        hero.translateZ(speed*40*delta);
+    }
+
+    if(left){
+        hero.rotation.y +=
+            1.9*delta;
+    }
+
+    if(right){
+        hero.rotation.y -=
+            1.9*delta;
+    }
+
+    if(flying){
+
+        if(keys["r"]){
+            hero.position.y +=
+                speed*40*delta;
+        }
+
+        if(keys["f"]){
+            hero.position.y -=
+                speed*40*delta;
+        }
+
+        hero.position.y =
+            Math.max(
+                5,
+                Math.min(
+                    300,
+                    hero.position.y
+                )
+            );
+
+        hero.position.y +=
+            Math.sin(
+                performance.now()*.004
+            )*.015;
+    }else{
+
+        hero.position.y =
+            4;
+    }
+
+    /* keep player inside city */
+
+    hero.position.x =
+        THREE.MathUtils.clamp(
+            hero.position.x,
+            -750,
+            750
+        );
+
+    hero.position.z =
+        THREE.MathUtils.clamp(
+            hero.position.z,
+            -750,
+            750
+        );
+
+    /* passive energy */
+
+    if(!boosting && energy<suit.energy){
+
+        energy +=
+            delta*3;
+
+        energy =
+            Math.min(
+                energy,
+                suit.energy
+            );
+    }
+
+    updateHUD();
+}
+
+/* =========================================================
+   FLIGHT
+   ========================================================= */
+
+function toggleFlight(){
+
+    if(suitCalling){
+        return;
+    }
+
+    flying = !flying;
+
+    if(flying){
+
+        hero.position.y =
+            Math.max(
+                hero.position.y,
+                10
+            );
+
+        assistant.textContent =
+            "SYSTEM: Flight mode enabled.";
+
+        modeText.textContent =
+            "FLIGHT MODE";
+
+    }else{
+
+        hero.position.y =
+            4;
+
+        assistant.textContent =
+            "SYSTEM: Landing sequence complete.";
+
+        modeText.textContent =
+            "GROUND MODE";
+    }
+}
+
+/* =========================================================
+   REPULSOR
+   ========================================================= */
+
+function fireRepulsor(){
+
+    if(!started || suitCalling){
+        return;
+    }
+
+    if(energy<4){
+        showNotification("LOW ENERGY");
+        return;
+    }
+
+    energy -= 4;
+
+    const direction =
+        new THREE.Vector3(
+            0,
+            0,
+            -1
+        );
+
+    direction.applyQuaternion(
+        hero.quaternion
+    );
+
+    const start =
+        hero.position.clone();
+
+    start.y += 2.5;
+
+    createProjectile(
+        start,
+        direction,
+        80,
+        25
+    );
+
+    createMuzzleFlash(start);
+
+    updateHUD();
+}
+
+/* =========================================================
+   PROJECTILES
+   ========================================================= */
+
+function createProjectile(
+    position,
+    direction,
+    speed,
+    damage
+){
+
+    const mesh =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .16,
+                10,
+                10
+            ),
+            new THREE.MeshBasicMaterial({
+                color:suit.glow
+            })
+        );
+
+    mesh.position.copy(position);
+
+    scene.add(mesh);
+
+    projectiles.push({
+        mesh:mesh,
+        direction:direction.clone(),
+        speed:speed,
+        damage:damage,
+        life:2.5
+    });
+}
+
+function updateProjectiles(delta){
+
+    for(
+        let i=projectiles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const p =
+            projectiles[i];
+
+        p.mesh.position.add(
+            p.direction.clone()
+            .multiplyScalar(
+                p.speed*delta
+            )
+        );
+
+        p.life -= delta;
+
+        let hit = false;
+
+        for(const enemy of enemies){
+
+            if(
+                !enemy.userData.alive
+            ){
+                continue;
+            }
+
+            if(
+                p.mesh.position.distanceTo(
+                    enemy.position
+                )<3
+            ){
+
+                damageEnemy(
+                    enemy,
+                    p.damage
+                );
+
+                hit=true;
+
+                break;
+            }
+        }
+
+        if(p.life<=0 || hit){
+
+            scene.remove(
+                p.mesh
+            );
+
+            projectiles.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+
+/* =========================================================
+   MISSILES
+   ========================================================= */
+
+function fireMissile(){
+
+    if(!started || suitCalling){
+        return;
+    }
+
+    if(energy<15){
+        showNotification("NOT ENOUGH ENERGY");
+        return;
+    }
+
+    energy -= 15;
+
+    let target =
+        getNearestEnemy();
+
+    const direction =
+        new THREE.Vector3(
+            0,
+            0,
+            -1
+        );
+
+    direction.applyQuaternion(
+        hero.quaternion
+    );
+
+    const start =
+        hero.position.clone();
+
+    start.y += 2;
+
+    const missile =
+        new THREE.Mesh(
+            new THREE.CylinderGeometry(
+                .12,
+                .12,
+                1.4,
+                8
+            ),
+            new THREE.MeshStandardMaterial({
+                color:0xdddddd,
+                metalness:.8
+            })
+        );
+
+    missile.rotation.x =
+        Math.PI/2;
+
+    missile.position.copy(start);
+
+    scene.add(missile);
+
+    missiles.push({
+        mesh:missile,
+        direction:direction,
+        target:target,
+        speed:25,
+        life:6
+    });
+
+    updateHUD();
+}
+
+function updateMissiles(delta){
+
+    for(
+        let i=missiles.length-1;
+        i>=0;
+        i--
+    ){
+
+        const m =
+            missiles[i];
+
+        if(
+            m.target &&
+            m.target.userData.alive
+        ){
+
+            const desired =
+                m.target.position
+                .clone()
+                .sub(
+                    m.mesh.position
+                )
+                .normalize();
+
+            m.direction.lerp(
+                desired,
+                .08
+            ).normalize();
+        }
+
+        m.mesh.position.add(
+            m.direction.clone()
+            .multiplyScalar(
+                m.speed*delta
+            )
+        );
+
+        m.mesh.lookAt(
+            m.mesh.position
+            .clone()
+            .add(m.direction)
+        );
+
+        m.life -= delta;
+
+        let hit=false;
+
+        for(const enemy of enemies){
+
+            if(
+                !enemy.userData.alive
+            ){
+                continue;
+            }
+
+            if(
+                m.mesh.position.distanceTo(
+                    enemy.position
+                )<3
+            ){
+
+                damageEnemy(
+                    enemy,
+                    65
+                );
+
+                createExplosion(
+                    enemy.position
+                );
+
+                hit=true;
+
+                break;
+            }
+        }
+
+        if(
+            hit ||
+            m.life<=0
+        ){
+
+            scene.remove(
+                m.mesh
+            );
+
+            missiles.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+
+/* =========================================================
+   ENEMY DAMAGE
+   ========================================================= */
+
+function damageEnemy(
+    enemy,
+    damage
+){
+
+    enemy.userData.health -=
+        damage;
+
+    if(
+        enemy.userData.health<=0
+    ){
+
+        enemy.userData.alive=false;
+
+        createExplosion(
+            enemy.position
+        );
+
+        scene.remove(enemy);
+
+        checkMission();
+    }
+}
+
+/* =========================================================
+   ENEMY AI
+   ========================================================= */
+
+function updateEnemies(delta){
+
+    for(const enemy of enemies){
+
+        if(!enemy.userData.alive){
+            continue;
+        }
+
+        enemy.userData.cooldown -=
+            delta;
+
+        const distance =
+            enemy.position.distanceTo(
+                hero.position
+            );
+
+        if(distance<180){
+
+            const direction =
+                hero.position
+                .clone()
+                .sub(
+                    enemy.position
+                )
+                .normalize();
+
+            enemy.position.add(
+                direction.multiplyScalar(
+                    enemy.userData.speed*60*delta
+                )
+            );
+
+            enemy.lookAt(hero.position);
+
+            if(
+                enemy.userData.cooldown<=0 &&
+                distance<150
+            ){
+
+                enemy.userData.cooldown =
+                    2+Math.random()*2;
+
+                enemyAttack(enemy);
+            }
+        }
+    }
+}
+
+function enemyAttack(enemy){
+
+    const direction =
+        hero.position
+        .clone()
+        .sub(
+            enemy.position
+        )
+        .normalize();
+
+    createEnemyProjectile(
+        enemy.position.clone(),
+        direction
+    );
+}
+
+function createEnemyProjectile(
+    position,
+    direction
+){
+
+    const mesh =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .15,
+                8,
+                8
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0xff3045
+            })
+        );
+
+    mesh.position.copy(position);
+
+    scene.add(mesh);
+
+    effects.push({
+        type:"enemyProjectile",
+        mesh:mesh,
+        direction:direction,
+        speed:30,
+        life:4
+    });
+}
+
+function updateEnemyProjectiles(delta){
+
+    for(
+        let i=effects.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e =
+            effects[i];
+
+        if(
+            e.type!=="enemyProjectile"
+        ){
+            continue;
+        }
+
+        e.mesh.position.add(
+            e.direction.clone()
+            .multiplyScalar(
+                e.speed*delta
+            )
+        );
+
+        e.life -= delta;
+
+        if(
+            e.mesh.position.distanceTo(
+                hero.position
+            )<3
+        ){
+
+            health -= 8;
+
+            createImpactRing(
+                hero.position
+            );
+
+            showNotification(
+                "SUIT HIT"
+            );
+
+            scene.remove(
+                e.mesh
+            );
+
+            effects.splice(
+                i,
+                1
+            );
+
+            updateHUD();
+
+            if(health<=0){
+                gameOver();
+            }
+
+            continue;
+        }
+
+        if(e.life<=0){
+
+            scene.remove(
+                e.mesh
+            );
+
+            effects.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+
+/* =========================================================
+   TARGET LOCK
+   ========================================================= */
+
+function toggleTarget(){
+
+    targetLocked =
+        !targetLocked;
+
+    if(targetLocked){
+
+        const enemy =
+            getNearestEnemy();
+
+        if(enemy){
+
+            targetUI.style.display =
+                "block";
+
+            assistant.textContent =
+                "SYSTEM: Target locked.";
+
+        }else{
+
+            targetLocked=false;
+
+            targetUI.style.display =
+                "none";
+
+            showNotification(
+                "NO TARGET"
+            );
+        }
+
+    }else{
+
+        targetUI.style.display =
+            "none";
+
+        assistant.textContent =
+            "SYSTEM: Target lock released.";
+    }
+}
+
+function updateTargetUI(){
+
+    if(!targetLocked){
+        return;
+    }
+
+    const enemy =
+        getNearestEnemy();
+
+    if(
+        !enemy ||
+        !enemy.userData.alive
+    ){
+
+        targetLocked=false;
+
+        targetUI.style.display =
+            "none";
+
+        return;
+    }
+
+    const projected =
+        enemy.position.clone()
+        .project(camera);
+
+    const x =
+        (projected.x*.5+.5)*
+        window.innerWidth;
+
+    const y =
+        (-projected.y*.5+.5)*
+        window.innerHeight;
+
+    targetUI.style.left =
+        x+"px";
+
+    targetUI.style.top =
+        y+"px";
+}
+
+function getNearestEnemy(){
+
+    let nearest=null;
+
+    let best=Infinity;
+
+    for(const enemy of enemies){
+
+        if(!enemy.userData.alive){
+            continue;
+        }
+
+        const distance =
+            hero.position.distanceTo(
+                enemy.position
+            );
+
+        if(distance<best){
+
+            best=distance;
+
+            nearest=enemy;
+        }
+    }
+
+    return nearest;
+}
+
+/* =========================================================
+   CAMERA
+   ========================================================= */
+
+function updateCamera(){
+
+    const offset =
+        new THREE.Vector3(
+            0,
+            flying ? 8 : 6,
+            flying ? 18 : 15
+        );
+
+    offset.applyQuaternion(
+        hero.quaternion
+    );
+
+    const desired =
+        hero.position
+        .clone()
+        .add(offset);
+
+    camera.position.lerp(
+        desired,
+        .08
+    );
+
+    const look =
+        hero.position
+        .clone();
+
+    look.y += 2;
+
+    camera.lookAt(look);
+}
+
+/* =========================================================
+   EFFECTS
+   ========================================================= */
+
+function createMuzzleFlash(position){
+
+    const flash =
+        new THREE.PointLight(
+            suit.glow,
+            8,
+            15
+        );
+
+    flash.position.copy(
+        position
+    );
+
+    scene.add(flash);
+
+    effects.push({
+        type:"flash",
+        mesh:flash,
+        life:.12
+    });
+}
+
+function createImpactRing(position){
+
+    const ring =
+        new THREE.Mesh(
+            new THREE.RingGeometry(
+                .5,
+                2,
+                32
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0x43dcff,
+                transparent:true,
+                opacity:.8,
+                side:THREE.DoubleSide
+            })
+        );
+
+    ring.rotation.x =
+        -Math.PI/2;
+
+    ring.position.copy(
+        position
+    );
+
+    scene.add(ring);
+
+    effects.push({
+        type:"ring",
+        mesh:ring,
+        life:.6
+    });
+}
+
+function createExplosion(position){
+
+    const sphere =
+        new THREE.Mesh(
+            new THREE.SphereGeometry(
+                .7,
+                16,
+                16
+            ),
+            new THREE.MeshBasicMaterial({
+                color:0xff9d32,
+                transparent:true,
+                opacity:.9
+            })
+        );
+
+    sphere.position.copy(
+        position
+    );
+
+    scene.add(sphere);
+
+    effects.push({
+        type:"explosion",
+        mesh:sphere,
+        life:.6
+    });
+}
+
+function updateEffects(delta){
+
+    for(
+        let i=effects.length-1;
+        i>=0;
+        i--
+    ){
+
+        const e =
+            effects[i];
+
+        if(
+            e.type==="flash"
+        ){
+
+            e.life -= delta;
+
+        }else if(
+            e.type==="ring"
+        ){
+
+            e.life -= delta;
+
+            e.mesh.scale.multiplyScalar(
+                1+delta*4
+            );
+
+            e.mesh.material.opacity =
+                Math.max(
+                    0,
+                    e.life/.6
+                );
+
+        }else if(
+            e.type==="explosion"
+        ){
+
+            e.life -= delta;
+
+            e.mesh.scale.multiplyScalar(
+                1+delta*6
+            );
+
+            e.mesh.material.opacity =
+                Math.max(
+                    0,
+                    e.life/.6
+                );
+        }
+
+        if(e.life<=0){
+
+            scene.remove(
+                e.mesh
+            );
+
+            effects.splice(
+                i,
+                1
+            );
+        }
+    }
+}
+
+/* =========================================================
+   HUD
+   ========================================================= */
+
+function updateHUD(){
+
+    healthFill.style.width =
+        Math.max(
+            0,
+            health/suit.armor*100
+        )+"%";
+
+    energyFill.style.width =
+        Math.max(
+            0,
+            energy/suit.energy*100
+        )+"%";
+
+    if(suitCalling){
+
+        suitName.textContent =
+            "DEPLOYING "+suit.name;
+
+        modeText.textContent =
+            "ARMOR ASSEMBLY";
+
+    }else{
+
+        suitName.textContent =
+            suit.name;
+
+        modeText.textContent =
+            flying
+            ? "FLIGHT MODE"
+            : "GROUND MODE";
+    }
+}
+
+/* =========================================================
+   NOTIFICATIONS
+   ========================================================= */
+
+let notificationTimer;
+
+function showNotification(text){
+
+    notification.textContent =
+        text;
+
+    notification.style.opacity =
+        "1";
+
+    clearTimeout(
+        notificationTimer
+    );
+
+    notificationTimer =
+        setTimeout(()=>{
+            notification.style.opacity =
+                "0";
+        },1300);
+}
+
+/* =========================================================
+   GAME OVER
+   ========================================================= */
+
+function gameOver(){
+
+    started=false;
+
+    assistant.textContent =
+        "SYSTEM: Suit integrity critical.";
+
+    showNotification(
+        "SUIT DISABLED"
+    );
+
+    setTimeout(()=>{
+
+        location.reload();
+
+    },2200);
+}
+
+/* =========================================================
+   BUTTONS
+   ========================================================= */
+
+function setupButtons(){
+
+    document
+        .getElementById("startButton")
+        .addEventListener(
+            "click",
+            startGame
+        );
+
+    document
+        .getElementById("callSuitButton")
+        .addEventListener(
+            "click",
+            ()=>{
+                suitMenu.style.display =
+                    suitMenu.style.display==="block"
+                    ? "none"
+                    : "block";
+            }
+        );
+
+    document
+        .getElementById("flyButton")
+        .addEventListener(
+            "click",
+            toggleFlight
+        );
+
+    document
+        .getElementById("boostButton")
+        .addEventListener(
+            "pointerdown",
+            ()=>{
+                keys["shift"]=true;
+            }
+        );
+
+    document
+        .getElementById("boostButton")
+        .addEventListener(
+            "pointerup",
+            ()=>{
+                keys["shift"]=false;
+            }
+        );
+
+    document
+        .getElementById("repulsorButton")
+        .addEventListener(
+            "click",
+            fireRepulsor
+        );
+
+    document
+        .getElementById("missileButton")
+        .addEventListener(
+            "click",
+            fireMissile
+        );
+
+    document
+        .getElementById("targetButton")
+        .addEventListener(
+            "click",
+            toggleTarget
+        );
+
+    document
+        .querySelectorAll(
+            "#suitMenu button"
+        )
+        .forEach(button=>{
+
+            button.addEventListener(
+                "click",
+                ()=>{
+                    callSuit(
+                        Number(
+                            button.dataset.mark
+                        )
+                    );
+                }
+            );
+        });
+}
+
+function startGame(){
+
+    started=true;
+
+    document
+        .getElementById("startScreen")
+        .style.display="none";
+
+    assistant.textContent =
+        "SYSTEM: Welcome, pilot. Call an armor set.";
+
+    missionText.textContent =
+        "Mission: Select CALL SUIT.";
+
+    suitMenu.style.display =
+        "block";
+
+    showNotification(
+        "SYSTEM ONLINE"
+    );
+}
+
+/* =========================================================
+   GAME LOOP
+   ========================================================= */
+
+function animate(){
+
+    requestAnimationFrame(
+        animate
+    );
+
+    const delta =
+        Math.min(
+            clock.getDelta(),
+            .05
+        );
+
+    if(started){
+
+        updateHero(delta);
+
+        updateSuitAssembly();
+
+        updateProjectiles(delta);
+
+        updateMissiles(delta);
+
+        updateEnemies(delta);
+
+        updateEnemyProjectiles(delta);
+
+        updateEffects(delta);
+
+        updateCamera();
+
+        updateTargetUI();
+    }
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+/* =========================================================
+   RESIZE
+   ========================================================= */
+
+function onResize(){
+
+    camera.aspect =
+        window.innerWidth/
+        window.innerHeight;
+
+    camera.updateProjectionMatrix();
+
+    renderer.setSize(
+        window.innerWidth,
+        window.innerHeight
+    );
+}
+
+/* =========================================================
+   START
+   ========================================================= */
+
+init();
+
+</script>
+
+</body>
+</html>
